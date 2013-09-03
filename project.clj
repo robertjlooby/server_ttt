@@ -13,5 +13,5 @@
   :source-paths ["src/clojure"]
   :java-source-paths ["src/java" "spec/java"]
   :junit ["spec/java"]
-  :test-paths ["spec"]
+  :test-paths ["spec/clojure"]
   :main clojure_server.ttt-server)

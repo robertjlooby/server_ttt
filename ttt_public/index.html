@@ -3,10 +3,17 @@
   <head>
   </head>
   <body>
-    <form action="/" method="post">
+    <form action="/index.html" method="post">
+      <div>
       Marker:
-      <input type="radio" name="marker" value="X" checked> X
-      <input type="radio" name="marker"   value="O"> O <br>
+        <input type="radio" name="marker" value="X" checked> X
+        <input type="radio" name="marker"   value="O"> O
+      </div>
+      <div>
+      Move:
+        <input type="radio" name="move" value="0" checked> First
+        <input type="radio" name="move" value="1"> Second
+      </div>
       <input type="submit" value="Play!">
     </form>
   </body>
