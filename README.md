@@ -1,4 +1,4 @@
-server_ttt
-==========
+# JavaTicTacToe in browser with clojure_server
 
-clojure_server linked to JavaTicTacToe
+To run clojure tests: `lein spec`
+To run java tests:    `lein junit`
