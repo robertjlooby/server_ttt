@@ -7,8 +7,8 @@
 (def directory (atom nil))
 (def port (atom nil))
 (defrouter router [request params]
-  (GET "/" (serve-file @directory request))
-  (GET "/:file" (serve-file (str @directory "/" (:file params)) request)))
+  (GET "/" [{:headers {:Location (str "http://localhost:" @port "/index.html")}} 301])
+  (GET "index.html" (serve-file (str @directory "/index.html") request)))
 
 (defn -main [& args]
   (with-command-line args
