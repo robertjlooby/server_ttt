@@ -1,5 +1,7 @@
 package TicTacToe;
 
+import TicTacToe.BoardMarker;
+
 import java.util.Arrays;
 import static TicTacToe.BoardMarker.*;
 
@@ -16,6 +18,24 @@ public class TicTacToeBoard {
         }
     }
 
+    public TicTacToeBoard(String bs){
+        dimensions = 2;
+        size = (int) Math.sqrt(bs.length());
+        state = new BoardMarker[size][size];
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                int index = (row * size) + col;
+                char c = bs.charAt(index);
+                if (c == 'X' || c == 'x')
+                    state[row][col] = X;
+                else if (c == 'O' || c == 'o')
+                    state[row][col] = O;
+                else
+                    state[row][col] = _;
+            }
+        }
+    }
+
     public TicTacToeBoard(){
         this(3, 2);
     }
@@ -27,6 +47,21 @@ public class TicTacToeBoard {
 
     public void setState(BoardMarker[][] newState) {
         state = newState;
+    }
+
+    public String getBoardStateString() {
+        String stateString = "";
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                if (state[row][col] == X)
+                    stateString += "X";
+                else if (state[row][col] == O)
+                    stateString += "O";
+                else
+                    stateString += "_";
+            }
+        }
+        return stateString;
     }
 
     public void makeMove(int row, int col, BoardMarker player) {
@@ -100,5 +135,39 @@ public class TicTacToeBoard {
             }
         }
         return true;
+    }
+
+    public String toWebString(String marker) {
+        String webString = "";
+        for (int row = 0; row < size; row++) {
+            webString += "<div id=\"row" + row + "\">";
+            for (int col = 0; col < size; col++) {
+                int cellNum = (row * size) + col;
+                TicTacToeBoard new_board = new TicTacToeBoard(getBoardStateString());
+                BoardMarker pMarker;
+                if (marker.equals("X"))
+                    pMarker = X;
+                else
+                    pMarker = O;
+                new_board.makeMove(row, col, pMarker);
+                String new_board_state = new_board.getBoardStateString();
+                webString += "<div id=\"cell" + cellNum + "\">";
+                if (state[row][col] == X)
+                    webString += "X";
+                else if (state[row][col] == O)
+                    webString += "O";
+                else
+                    webString += "<form action=\"/game\" method=\"post\">" +
+                                 "<input type=\"hidden\" name=\"marker\" value=\"" +
+                                 marker + "\">" +
+                                 "<input type=\"hidden\" name=\"board_state\" value=\"" +
+                                 new_board_state + "\">" +
+                                 "<input type=\"submit\" class=\"button\" value=\"" + cellNum + "\">" +
+                                 "</form>";
+                webString += "</div>";
+            }
+            webString += "</div>";
+        }
+        return webString;
     }
 }

@@ -1,5 +1,6 @@
 package TicTacToe;
 
+import TicTacToe.TicTacToeBoard;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -467,5 +468,61 @@ public class TicTacToeBoardTest {
     public void shouldHaveFullBoard(){
         board.setState(new BoardMarker[][]{{X, O, X}, {X, O, O}, {O, X, X}});
         assertTrue(board.full());
+    }
+
+    @Test
+    public void shouldConstructEmptyBoardFromString() {
+        TicTacToeBoard b = new TicTacToeBoard("_________");
+        assertEquals(boardState, b.getState());
+    }
+
+    @Test
+    public void _4x4shouldConstructEmptyBoardFromString() {
+        TicTacToeBoard b = new TicTacToeBoard("________________");
+        assertEquals(boardState4, b.getState());
+    }
+
+    @Test
+    public void shouldConstructBoardFromString() {
+        TicTacToeBoard b = new TicTacToeBoard("Xo__OOx_O");
+        boardState = new BoardMarker[][]{{X, O, _}, {_, O, O}, {X, _, O}};
+        assertEquals(boardState, b.getState());
+    }
+
+    @Test
+    public void _4x4shouldConstructBoardFromString() {
+        TicTacToeBoard b = new TicTacToeBoard("XOo___OOx_xOo_XO");
+        boardState4 = new BoardMarker[][]{{X, O, O, _}, {_, _, O, O}, {X, _, X, O}, {O, _, X, O}};
+        assertEquals(boardState4, b.getState());
+    }
+
+    @Test
+    public void shouldGetEmptyStateString() {
+        assertEquals("_________", board.getBoardStateString());
+    }
+
+    @Test
+    public void _4x4shouldGetEmptyStateString() {
+        assertEquals("________________", board4.getBoardStateString());
+    }
+
+    @Test
+    public void shouldGetStateStringForMoreComplicatedState() {
+        board.setState(new BoardMarker[][]{{X, O, _}, {_, O, O}, {X, _, O}});
+        assertEquals("XO__OOX_O", board.getBoardStateString());
+    }
+
+    @Test
+    public void _4x4shouldGetStateStringForMoreComplicatedState() {
+        board4.setState(new BoardMarker[][]{{X, O, O, _}, {_, _, O, O}, {X, _, X, O}, {O, _, X, O}});
+        assertEquals("XOO___OOX_XOO_XO", board4.getBoardStateString());
+    }
+
+    @Test
+    public void shouldHaveStringRepresentingBoardState() {
+        String s = board.toWebString("X");
+        for(int i = 0; i < 9; i++){
+            assertThat(s, org.junit.matchers.JUnitMatchers.containsString("id=cell" + i));
+        }
     }
 }
