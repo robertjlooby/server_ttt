@@ -48,22 +48,43 @@
     [{:content-stream (java.io.StringBufferInputStream. response)}
      200]))
 
+(defn result-page [marker board_state]
+  (let [player (if (= marker "X") TicTacToe.BoardMarker/X
+                                  TicTacToe.BoardMarker/O)
+        winner (.winner (TicTacToe.TicTacToeBoard. board_state))]
+    (condp = winner
+      player
+        (redirect-to "/win.html")
+      TicTacToe.BoardMarker/T
+        (redirect-to "/tie.html")
+      TicTacToe.BoardMarker/_
+        nil
+      (redirect-to "/lose.html"))))
+
+
 (defn take-turn [request params]
   (let [settings (parse-query-to-params (first (:body request)))
         marker (:marker settings)
         board_state (:board_state settings)
-        ai-key (if (= marker "X") :O :X)
-        new-bs (make-ai-move ai-key board_state)]
-    (redirect-to (str "/game?marker=" marker
-                      "&board_state=" new-bs))))
+        result (result-page marker board_state)]
+    (if (nil? result)
+        (let [ai-key (if (= marker "X") :O :X)
+              new-bs (make-ai-move ai-key board_state)
+              new-result (result-page marker new-bs)]
+          (if (nil? new-result)
+              (redirect-to (str "/game?marker=" marker
+                                "&board_state=" new-bs))
+              new-result))
+        result)))
 
 (defrouter router [request params]
   (GET "/" (redirect-to "/index.html"))
-  (GET "/index.html" (serve-file (str @directory "/index.html") request))
   (POST "/index.html" (start-game request))
   (GET "/game" (display-game request params))
   (POST "/game" (take-turn request params))
-  (GET "/ttt_style.css" (serve-file (str @directory "/ttt_style.css") request)))
+  (GET "/:file" (serve-file (str @directory (:path 
+                                              (:headers request)))
+                            request)))
 
 (defn -main [& args]
   (with-command-line args

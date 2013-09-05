@@ -73,6 +73,46 @@
       (should= 301 (second response))
       (should= "http://localhost:3000/game?marker=O&board_state=O___X____"
                (:Location (:headers (first response))))))
+
+  (it "should redirect to win if player wins"
+    (reset! port 3000)
+    (let [req {:body '("marker=O&board_state=O_XO_XO__")}
+          response (take-turn req {})]
+      (should= 301 (second response))
+      (should= "http://localhost:3000/win.html"
+               (:Location (:headers (first response))))))
+
+  (it "should redirect to tie if player ties"
+    (reset! port 3000)
+    (let [req {:body '("marker=O&board_state=OXOXXOOOX")}
+          response (take-turn req {})]
+      (should= 301 (second response))
+      (should= "http://localhost:3000/tie.html"
+               (:Location (:headers (first response))))))
+
+  (it "should redirect to lose if player loses"
+    (reset! port 3000)
+    (let [req {:body '("marker=X&board_state=O_XOOOX_X")}
+          response (take-turn req {})]
+      (should= 301 (second response))
+      (should= "http://localhost:3000/lose.html"
+               (:Location (:headers (first response))))))
+
+  (it "should redirect to lose if player loses after ai move"
+    (reset! port 3000)
+    (let [req {:body '("marker=X&board_state=O_XOO_X_X")}
+          response (take-turn req {})]
+      (should= 301 (second response))
+      (should= "http://localhost:3000/lose.html"
+               (:Location (:headers (first response))))))
+
+  (it "should redirect to tie if ai ties"
+    (reset! port 3000)
+    (let [req {:body '("marker=O&board_state=OXOX_OOOX")}
+          response (take-turn req {})]
+      (should= 301 (second response))
+      (should= "http://localhost:3000/tie.html"
+               (:Location (:headers (first response))))))
 )
 
 (describe "router"
@@ -91,6 +131,15 @@
       #(let [req {:headers {:method "GET" :path "/index.html"}}
              response (router req)]
         (should= "/public/index.html" (first response))
+        (should= req (second response)))))
+
+  (it "should serve any file for a GET"
+    (reset! directory "/public")
+    (with-redefs-fn {#'clojure_server.server/serve-file
+                       (fn [path request] [path request])}
+      #(let [req {:headers {:method "GET" :path "/any_file"}}
+             response (router req)]
+        (should= "/public/any_file" (first response))
         (should= req (second response)))))
 
   (it "should call start-game for POST /index.html"
