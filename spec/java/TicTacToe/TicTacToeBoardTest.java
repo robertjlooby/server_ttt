@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.matchers.JUnitMatchers.containsString;
 import static TicTacToe.BoardMarker.*;
 
 public class TicTacToeBoardTest {
@@ -522,7 +523,8 @@ public class TicTacToeBoardTest {
     public void shouldHaveStringRepresentingBoardState() {
         String s = board.toWebString("X");
         for(int i = 0; i < 9; i++){
-            assertThat(s, org.junit.matchers.JUnitMatchers.containsString("id=cell" + i));
+            assertThat(s, containsString("id=\"cell" + i));
         }
+        assertThat(s, containsString("name=\"board_state\" value=\"_____X___\""));
     }
 }
