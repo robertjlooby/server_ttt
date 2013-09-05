@@ -1,6 +1,16 @@
 (ns clojure_server.ttt-server-spec
   (:require [speclj.core :refer :all]
             [clojure_server.ttt-server :refer :all]))
+
+(describe "redirect-to"
+  (it "should redirect to the given path"
+    (reset! port 3000)
+    (let [r (redirect-to "/hello")]
+      (should= "http://localhost:3000/hello"
+               (:Location (:headers (first r))))
+      (should= 301 (second r))))
+)
+
 (describe "get-ai-move"
   (it "should be [0, 0] for an empty board"
     (should= [0 0] (get-ai-move :X "_________")))
