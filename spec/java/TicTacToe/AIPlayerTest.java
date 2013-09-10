@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -62,9 +63,13 @@ public class AIPlayerTest {
 
     @Test
     public void shouldChooseWinningMove(){
+        player = new AIPlayer(X, new TicTacToeBoard());
         assertArrayEquals(new int[]{2, 2}, player.getMove(new BoardMarker[][]{{X, _, O}, {X, X, O}, {O, _, _}}));
+        player = new AIPlayer(X, new TicTacToeBoard());
         assertArrayEquals(new int[]{0, 2}, player.getMove(new BoardMarker[][]{{O, O, _}, {_, X, _}, {X, X, O}}));
+        player = new AIPlayer(X, new TicTacToeBoard());
         assertArrayEquals(new int[]{2, 0}, player.getMove(new BoardMarker[][]{{O, X, X}, {_, X, _}, {_, O, O}}));
+        player = new AIPlayer(X, new TicTacToeBoard());
         assertArrayEquals(new int[]{1, 0}, player.getMove(new BoardMarker[][]{{X, O, O}, {_, X, _}, {X, _, O}}));
         player = new AIPlayer(O, board);
         assertArrayEquals(new int[]{0, 2}, player.getMove(new BoardMarker[][]{{X, _, _}, {_, _, _}, {O, X, O}}));
@@ -72,11 +77,27 @@ public class AIPlayerTest {
 
     @Test
     public void shouldChooseMoveToForceTie(){
+        player = new AIPlayer(X, new TicTacToeBoard());
         assertArrayEquals(new int[]{2, 1}, player.getMove(new BoardMarker[][]{{X, O, X}, {_, X, _}, {O, _, O}}));
+        player = new AIPlayer(X, new TicTacToeBoard());
         assertArrayEquals(new int[]{2, 0}, player.getMove(new BoardMarker[][]{{X, X, O}, {_, O, _}, {_, _, _}}));
+        player = new AIPlayer(X, new TicTacToeBoard());
         assertFalse(Arrays.equals(new int[]{0, 1}, player.getMove(new BoardMarker[][]{{_, _, X}, {_, O, _}, {O, X, _}})));
-        player = new AIPlayer(O, board);
+        player = new AIPlayer(O, new TicTacToeBoard());
         assertArrayEquals(new int[]{2, 0}, player.getMove(new BoardMarker[][]{{X, _, _}, {X, O, O}, {_, _, X}}));
+        player = new AIPlayer(O, new TicTacToeBoard());
+        assertArrayEquals(new int[]{0, 1}, player.getMove(new BoardMarker[][]{{X, _, _}, {_, O, _}, {_, _, X}}));
+        player = new AIPlayer(O, new TicTacToeBoard());
+        assertArrayEquals(new int[]{2, 0}, player.getMove(new BoardMarker[][]{{O, O, X}, {_, X, _}, {_, X, O}}));
+    }
+
+    @Test
+    public void shouldNotCacheAnyInvalidMoves(){
+        player.getMove(new BoardMarker[][]{{_, _, _}, {_, _, _}, {_, _, _}});
+        for(Map.Entry<BoardMarkerArray, int[]> move : player.getCachedMoves().entrySet()){
+            assertTrue(move.getValue()[0] >= 0);
+            assertTrue(move.getValue()[1] >= 0);
+        }
     }
 
     @Test

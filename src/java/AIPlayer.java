@@ -19,7 +19,7 @@ public class AIPlayer implements Player{
 
     @Override
     public int[] getMove(BoardMarker[][] boardState) {
-        int[] result = alphaBetaMinimax(boardState, Integer.MIN_VALUE, Integer.MAX_VALUE, symbol);
+        int[] result = alphaBetaMinimax(boardState, -1, 1, symbol);
         return new int[]{result[0], result[1]};
     }
 
@@ -57,13 +57,17 @@ public class AIPlayer implements Player{
         for(int[] emptyCell : emptyCells(boardState)){
             int row = emptyCell[0], col = emptyCell[1];
             int nextScore = getNextScore(boardState, alpha, beta, movePlayer, row, col);
+            if(nextScore >= beta)
+                return new int[]{row, col, nextScore};
+            if(nextRow == -1 && nextScore <= alpha){
+                nextRow = row;
+                nextCol = col;
+            }
             if(nextScore > alpha){
                 nextRow = row;
                 nextCol = col;
                 alpha = nextScore;
             }
-            if(beta <= alpha)
-                break;
         }
         return new int[]{nextRow, nextCol, alpha};
     }
@@ -73,13 +77,17 @@ public class AIPlayer implements Player{
         for(int[] emptyCell : emptyCells(boardState)){
             int row = emptyCell[0], col = emptyCell[1];
             int nextScore = getNextScore(boardState, alpha, beta, movePlayer, row, col);
+            if(nextScore <= alpha)
+                return new int[]{row, col, nextScore};
+            if(nextRow == -1 && nextScore >= beta){
+                nextRow = row;
+                nextCol = col;
+            }
             if(nextScore < beta){
                 nextRow = row;
                 nextCol = col;
                 beta = nextScore;
             }
-            if(beta <= alpha)
-                break;
         }
         return new int[]{nextRow, nextCol, beta};
     }
