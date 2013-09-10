@@ -8,4 +8,6 @@
     }
   };
 
+  (typeof exports !== "undefined" && exports !== null ? exports : this).TicTacToe = TicTacToe;
+
 }).call(this);
