@@ -3,8 +3,14 @@
   var TicTacToe;
 
   TicTacToe = {
-    makeMove: function(boardState) {
+    makeMove: function(marker, boardState) {
       return boardState;
+    },
+    requestBuilder: function() {
+      var request;
+      request = new XMLHttpRequest();
+      request.open("POST", "/game", true);
+      return request;
     }
   };
 
