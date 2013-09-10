@@ -1,0 +1,2 @@
+TicTacToe =
+  makeMove: (boardState) -> boardState
