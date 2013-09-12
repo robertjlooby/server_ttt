@@ -157,13 +157,10 @@ public class TicTacToeBoard {
                 else if (state[row][col] == O)
                     webString += "O";
                 else
-                    webString += "<form action=\"/game\" method=\"post\">" +
-                                 "<input type=\"hidden\" name=\"marker\" value=\"" +
-                                 marker + "\">" +
-                                 "<input type=\"hidden\" name=\"board_state\" value=\"" +
-                                 new_board_state + "\">" +
-                                 "<input type=\"submit\" class=\"button\" value=\"" + cellNum + "\">" +
-                                 "</form>";
+                    webString += "<button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('" +
+                                 marker + "', '" +
+                                 new_board_state + "')\">" +
+                                (row * size + col) +"</button>";
                 webString += "</div>";
             }
             webString += "</div>";

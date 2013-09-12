@@ -525,6 +525,6 @@ public class TicTacToeBoardTest {
         for(int i = 0; i < 9; i++){
             assertThat(s, containsString("id=\"cell" + i));
         }
-        assertThat(s, containsString("name=\"board_state\" value=\"_____X___\""));
+        assertThat(s, containsString("<button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('X', '__X______')\">2</button>"));
     }
 }

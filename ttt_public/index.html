@@ -3,7 +3,7 @@
   <head>
   </head>
   <body>
-    <form action="/index.html" method="post">
+    <form action="" onsubmit="TicTacToe.initializeGame(this.marker.value, this.move.value); return false;">
       <div>
       Marker:
         <input type="radio" name="marker" value="X" checked> X

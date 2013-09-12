@@ -1,29 +1,27 @@
 (ns clojure_server.ttt-server
   (:require [clojure_server.server :refer :all]
             [clojure_server.router :refer :all])
+  (:import (TicTacToe BoardMarker TicTacToeBoard AIPlayer)
+           (java.io StringBufferInputStream))
   (:use clojure.contrib.command-line)
   (:gen-class))
 (def directory (atom nil))
 (def port (atom nil))
 
-(defn redirect-to [rel-path]
-  [{:headers {:Location (str "http://localhost:" @port rel-path)}}
-   301])
-
 (defn get-ai-move [ai-key board-str]
-  (let [ai-sym (if (= ai-key :X) TicTacToe.BoardMarker/X
-                                  TicTacToe.BoardMarker/O)
-        board (TicTacToe.TicTacToeBoard. board-str)
-        player (TicTacToe.AIPlayer. 
-                 ai-sym (TicTacToe.TicTacToeBoard.))]
+  (let [ai-sym (if (= ai-key :X) BoardMarker/X
+                                  BoardMarker/O)
+        board (TicTacToeBoard. board-str)
+        player (AIPlayer. 
+                 ai-sym (TicTacToeBoard.))]
     (seq (.getMove player (.getState board)))))
 
 (defn make-ai-move [ai-key board-str]
  (let [ai-move (get-ai-move ai-key board-str)
-       board (TicTacToe.TicTacToeBoard. board-str)
+       board (TicTacToeBoard. board-str)
        _ (.makeMove board (first ai-move) (second ai-move)
-                    (if (= ai-key :X) TicTacToe.BoardMarker/X
-                                      TicTacToe.BoardMarker/O))]
+                    (if (= ai-key :X) BoardMarker/X
+                                      BoardMarker/O))]
    (.getBoardStateString board)))
 
 (defn start-game [request]
@@ -33,34 +31,47 @@
         bs-str "_________"
         final-bs (if (= "0" move) bs-str
                   (make-ai-move (if (= marker "X") :O :X) bs-str))]
-    (redirect-to (str "/game?marker=" marker
-                      "&board_state=" final-bs))))
+    [{:content-stream (StringBufferInputStream.
+                        (.toWebString (TicTacToeBoard. final-bs)
+                                      marker))} 200]))
 
-(defn display-game [request params]
-  (let [board (TicTacToe.TicTacToeBoard. (:board_state params))
-        response
-        (str "<!DOCTYPE html>"
-             "<html><head>"
-             "<link rel=\"stylesheet\" type=\"text/css\" href=\"ttt_style.css\">"
-             "</head><body>"
-             (.toWebString board (:marker params))
-             "</body></html>")]
-    [{:content-stream (java.io.StringBufferInputStream. response)}
-     200]))
+(defn new-game-form []
+  (str "<form action=\"\" onsubmit=\"TicTacToe.initializeGame(); return false;\">"
+    "<div>"
+    "Marker:"
+      "<input type=\"radio\" name=\"marker\" value=\"X\" checked> X"
+      "<input type=\"radio\" name=\"marker\"   value=\"O\"> O"
+    "</div>"
+    "<div>"
+    "Move:"
+      "<input type=\"radio\" name=\"move\" value=\"0\" checked> First"
+      "<input type=\"radio\" name=\"move\" value=\"1\"> Second"
+    "</div>"
+    "<input type=\"submit\" value=\"Play!\">"
+  "</form>"))
 
 (defn result-page [marker board_state]
-  (let [player (if (= marker "X") TicTacToe.BoardMarker/X
-                                  TicTacToe.BoardMarker/O)
-        winner (.winner (TicTacToe.TicTacToeBoard. board_state))]
+  (let [player (if (= marker "X") BoardMarker/X
+                                  BoardMarker/O)
+        board (TicTacToeBoard. board_state)
+        winner (.winner board)]
     (condp = winner
       player
-        (redirect-to "/win.html")
-      TicTacToe.BoardMarker/T
-        (redirect-to "/tie.html")
-      TicTacToe.BoardMarker/_
+        [{:content-stream (StringBufferInputStream.
+                            (str "<h1>You Won!</h1>"
+                                 (.toWebString board marker)
+                                 (new-game-form)))} 200]
+      BoardMarker/T
+        [{:content-stream (StringBufferInputStream.
+                            (str "<h1>It Was a Tie!</h1>"
+                                 (.toWebString board marker)
+                                 (new-game-form)))} 200]
+      BoardMarker/_
         nil
-      (redirect-to "/lose.html"))))
-
+      [{:content-stream (StringBufferInputStream.
+                            (str "<h1>You Lost!</h1>"
+                                 (.toWebString board marker)
+                                 (new-game-form)))} 200])))
 
 (defn take-turn [request params]
   (let [settings (parse-query-to-params (first (:body request)))
@@ -72,17 +83,35 @@
               new-bs (make-ai-move ai-key board_state)
               new-result (result-page marker new-bs)]
           (if (nil? new-result)
-              (redirect-to (str "/game?marker=" marker
-                                "&board_state=" new-bs))
+            [{:content-stream (StringBufferInputStream.
+                                (.toWebString
+                                 (TicTacToeBoard. new-bs) marker))}
+             200]
               new-result))
         result)))
 
+(defn initialize-page [body]
+  (let [response
+    (str "<!DOCTYPE html>"
+         "<html><head>"
+         "<link rel=\"stylesheet\" type=\"text/css\" href=\"/stylesheets/ttt_style.css\">"
+         "<script src=\"/javascripts/jquery-1.10.2.min.js\"></script>"
+         "<script src=\"/javascripts/TicTacToe.js\"></script>"
+         "</head><body><div id=\"board\">"
+         body
+         "</div></body></html>")]
+    [{:content-stream (StringBufferInputStream. response)} 200]))
+
 (defrouter router [request params]
-  (GET "/" (redirect-to "/index.html"))
-  (POST "/index.html" (start-game request))
-  (GET "/game" (display-game request params))
+  (GET "/" (initialize-page (new-game-form)))
+  (POST "/" (start-game request))
   (POST "/game" (take-turn request params))
-  (GET "/:file" (serve-file (str @directory (:path 
+  (GET "/stylesheets/:file" (serve-file (str @directory 
+                                             (:path 
+                                              (:headers request)))
+                            request))
+  (GET "/javascripts/:file" (serve-file (str @directory 
+                                             (:path 
                                               (:headers request)))
                             request)))
 

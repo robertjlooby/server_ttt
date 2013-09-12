@@ -3,14 +3,39 @@
   var TicTacToe;
 
   TicTacToe = {
-    makeMove: function(marker, boardState) {
-      return boardState;
+    replaceBoard: function(boardString) {
+      return $("div#board").html(boardString);
     },
-    requestBuilder: function() {
-      var request;
-      request = new XMLHttpRequest();
-      request.open("POST", "/game", true);
-      return request;
+    makeMove: function(marker, boardState) {
+      return $.ajax({
+        data: {
+          marker: marker,
+          board_state: boardState
+        },
+        async: true,
+        type: "POST",
+        url: "/game",
+        success: function(response) {
+          return TicTacToe.replaceBoard(response);
+        }
+      });
+    },
+    initializeGame: function() {
+      var marker, move;
+      marker = $("input[name='marker']:checked").val();
+      move = $("input[name='move']:checked").val();
+      return $.ajax({
+        data: {
+          marker: marker,
+          move: move
+        },
+        async: true,
+        type: "POST",
+        url: "/",
+        success: function(response) {
+          return TicTacToe.replaceBoard(response);
+        }
+      });
     }
   };
 
