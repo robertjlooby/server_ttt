@@ -1,7 +1,14 @@
 (ns clojure_server.ttt-server-spec
   (:require [speclj.core :refer :all]
+            [clojure.data.json :as json]
             [clojure_server.ttt-server :refer :all])
   (import (TicTacToe TicTacToeBoard)))
+
+(defn stream-to-string [stream]
+  (let [b-a (byte-array 5000)
+        _ (.read stream b-a 0 5000)
+        body (String. b-a)]
+    (clojure.string/trim body)))
 
 (describe "get-ai-move"
   (it "should be [0, 0] for an empty board"
@@ -16,31 +23,27 @@
 
 (describe "make-ai-move"
   (it "should make a move at [0, 0] for an empty board"
-    (should= "X________" (make-ai-move :X "_________")))
+    (should= [0, "X________"] (make-ai-move :X "_________")))
 
   (it "should make a move to force a tie"
-    (should= "XOX_O____" (make-ai-move :O "X_X_O____")))
+    (should= [1, "XOX_O____"] (make-ai-move :O "X_X_O____")))
 )
 
 (describe "start-game"
-  (it "should return empty board display for move 0"
+  (it "should return empty board for move 0"
     (let [response (start-game {:body '("marker=X&move=0")})
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
-      (should= (.toWebString (TicTacToeBoard. "_________") "X")
-               (clojure.string/trim body))
+          body (stream-to-string stream)]
+      (should= {:boardState "_________" :aiMove -1 :result nil}
+               (json/read-str body :key-fn keyword))
       (should= 200 (second response))))
 
-  (it "should return board display with 1 move made for move 1"
+  (it "should return board with 1 move made for move 1"
     (let [response (start-game {:body '("marker=X&move=1")})
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
-      (should= (.toWebString (TicTacToeBoard. "O________") "X")
-               (clojure.string/trim body))
+          body (stream-to-string stream)]
+      (should= {:boardState "O________" :aiMove 0 :result nil}
+               (json/read-str body :key-fn keyword))
       (should= 200 (second response))))
 )
 
@@ -50,84 +53,61 @@
     (let [req {:body '("marker=O&board_state=O________")}
           response (take-turn req {})
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
+          body (stream-to-string stream)]
       (should= 200 (second response))
-      (should= (.toWebString (TicTacToeBoard. "O___X____") "O")
-               (clojure.string/trim body))))
+      (should= {:boardState "O___X____" :aiMove 4 :result nil}
+               (json/read-str body :key-fn keyword))))
 
-  (it "should return win if player wins and offer to play again"
+  (it "should return W if player wins"
     (reset! port 3000)
     (let [req {:body '("marker=O&board_state=O_XO_XO__")}
           response (take-turn req {})
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
+          body (stream-to-string stream)]
       (should= 200 (second response))
-      (should= (str "<h1>You Won!</h1>"
-                    (.toWebString (TicTacToeBoard. "O_XO_XO__") "O")
-                    (new-game-form))
-               (clojure.string/trim body))))
+      (should= {:boardState "O_XO_XO__" :aiMove -1 :result "W"}
+               (json/read-str body :key-fn keyword))))
 
 
-  (it "should return tie if player ties and offer to play again"
+  (it "should return T if player ties"
     (reset! port 3000)
     (let [req {:body '("marker=O&board_state=OXOXXOOOX")}
           response (take-turn req {})
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
+          body (stream-to-string stream)]
       (should= 200 (second response))
-      (should= (str "<h1>It Was a Tie!</h1>"
-                    (.toWebString (TicTacToeBoard. "OXOXXOOOX") "O")
-                    (new-game-form))
-               (clojure.string/trim body))))
+      (should= {:boardState "OXOXXOOOX" :aiMove -1 :result "T"}
+               (json/read-str body :key-fn keyword))))
 
-  (it "should return lose if player loses and offer to play again"
+  (it "should return L if player loses"
     (reset! port 3000)
     (let [req {:body '("marker=X&board_state=O_XOOOX_X")}
           response (take-turn req {})
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
+          body (stream-to-string stream)]
       (should= 200 (second response))
-      (should= (str "<h1>You Lost!</h1>"
-                    (.toWebString (TicTacToeBoard. "O_XOOOX_X") "X")
-                    (new-game-form))
-               (clojure.string/trim body))))
+      (should= {:boardState "O_XOOOX_X" :aiMove -1 :result "L"}
+               (json/read-str body :key-fn keyword))))
 
-  (it "should return lose if player loses after an ai move
-       and offer to play again"
+  (it "should return L if player loses after an ai move"
     (reset! port 3000)
     (let [req {:body '("marker=X&board_state=O_XOO_X_X")}
           response (take-turn req {})
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
+          body (stream-to-string stream)]
       (should= 200 (second response))
-      (should= (str "<h1>You Lost!</h1>"
-                    (.toWebString (TicTacToeBoard. "O_XOOOX_X") "X")
-                    (new-game-form))
-               (clojure.string/trim body))))
+      (should= {:boardState "O_XOOOX_X" :aiMove 5 :result "L"}
+               (json/read-str body :key-fn keyword))))
 
-  (it "should return tie if ai ties and offer to play again"
+  (it "should return tie if ai ties"
     (reset! port 3000)
     (let [req {:body '("marker=X&board_state=XOXOOX_XO")}
           response (take-turn req {})
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
+          body (stream-to-string stream)]
       (should= 200 (second response))
-      (should= (str "<h1>It Was a Tie!</h1>"
-                    (.toWebString (TicTacToeBoard. "XOXOOXOXO") "X")
-                    (new-game-form))
-               (clojure.string/trim body))))
+      (should= {:boardState "XOXOOXOXO" :aiMove 6 :result "T"}
+               (json/read-str body :key-fn keyword))))
 )
 
 (describe "new-game-form"
@@ -138,13 +118,25 @@
         (new-game-form))))
 )
 
+(describe "result"
+  (it "should return nil for unfinished game"
+    (should= nil (result "X" "O___X____")))
+
+  (it "should return W for a player win"
+    (should= "W" (result "X" "X_OOO_XXX")))
+
+  (it "should return L for a player loss"
+    (should= "L" (result "O" "X_OOO_XXX")))
+
+  (it "should return T for a tie"
+    (should= "T" (result "O" "XOOOXXXXO")))
+)
+
 (describe "initialize-page"
   (it "should display an HTML page"
-    (let [response (initialize-page "hello page")
+    (let [response (initialize-page)
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
+          body (stream-to-string stream)]
             (should 
               (re-matches 
                 #"<!DOCTYPE html><html><head>[\s\S]*</head><body>[\s\S]*</body></html>[\s\S]*"
@@ -152,37 +144,32 @@
             (should= 200 (second response))))
 
   (it "should have a #board div"
-    (let [response (initialize-page "hello page")
+    (let [response (initialize-page)
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
+          body (stream-to-string stream)]
             (should 
               (re-matches 
                 #"[\s\S]*<div id=\"board\">[\s\S]*"
                 body))
             (should= 200 (second response))))
 
-  (it "should have the arg inside the #board div"
-    (let [response (initialize-page "hello page")
+  (it "should have the form below the #board div"
+    (let [response (initialize-page)
           stream (:content-stream (first response))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)
-          body (String. b-a)]
+          body (stream-to-string stream)]
             (should 
               (re-matches 
-                #"[\s\S]*<div id=\"board\">hello page[\s\S]*"
+                #"[\s\S]*<div id=\"board\"></div><form[\s\S]*"
                 body))
             (should= 200 (second response))))
 )
 
 (describe "router"
   (it "should call initialize-page for GET / with new-game-form"
-    (with-redefs-fn {#'initialize-page (fn [bdy] (str "i-p" bdy))
-                     #'new-game-form (fn [] (str "n-g-f"))}
+    (with-redefs-fn {#'initialize-page (fn [] "i-p")}
       #(let [req {:headers {:method "GET" :path "/"}}
              response (router req)]
-         (should= "i-pn-g-f" response))))
+         (should= "i-p" response))))
 
   (it "should call start-game for POST / with request"
     (with-redefs-fn {#'start-game (fn [req] (str "s-g" (:a req)))}

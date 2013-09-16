@@ -26,7 +26,7 @@ src_files:
 #   - stylesheets/*.css
 #
 stylesheets:
-    - ttt_style.css
+    - stylesheets/ttt_style.css
 
 # helpers
 #

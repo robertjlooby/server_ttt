@@ -4,6 +4,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [org.clojure/data.codec "0.1.0"]
+                 [org.clojure/data.json  "0.2.3"]
                  [org.clojure/clojure-contrib "1.2.0"]]
   :profiles {:dev {:dependencies [[speclj "2.5.0"]
                                   [junit/junit "4.10"]]}}

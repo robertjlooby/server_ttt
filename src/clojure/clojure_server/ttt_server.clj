@@ -1,5 +1,6 @@
 (ns clojure_server.ttt-server
-  (:require [clojure_server.server :refer :all]
+  (:require [clojure.data.json :as json]
+            [clojure_server.server :refer :all]
             [clojure_server.router :refer :all])
   (:import (TicTacToe BoardMarker TicTacToeBoard AIPlayer)
            (java.io StringBufferInputStream))
@@ -8,9 +9,13 @@
 (def directory (atom nil))
 (def port (atom nil))
 
+(defn response-from-string [response]
+  [{:headers {:Content-Length (count response)}
+    :content-stream (StringBufferInputStream. response)} 200])
+
 (defn get-ai-move [ai-key board-str]
   (let [ai-sym (if (= ai-key :X) BoardMarker/X
-                                  BoardMarker/O)
+                                 BoardMarker/O)
         board (TicTacToeBoard. board-str)
         player (AIPlayer. 
                  ai-sym (TicTacToeBoard.))]
@@ -19,21 +24,22 @@
 (defn make-ai-move [ai-key board-str]
  (let [ai-move (get-ai-move ai-key board-str)
        board (TicTacToeBoard. board-str)
+       cell-num (+ (* 3 (first ai-move)) (second ai-move))
        _ (.makeMove board (first ai-move) (second ai-move)
                     (if (= ai-key :X) BoardMarker/X
                                       BoardMarker/O))]
-   (.getBoardStateString board)))
+   [cell-num, (.getBoardStateString board)]))
 
 (defn start-game [request]
   (let [settings (parse-query-to-params (first (:body request)))
         marker (:marker settings)
         move   (:move   settings)
         bs-str "_________"
-        final-bs (if (= "0" move) bs-str
+        [ai-move final-bs] (if (= "0" move) [-1 bs-str]
                   (make-ai-move (if (= marker "X") :O :X) bs-str))]
-    [{:content-stream (StringBufferInputStream.
-                        (.toWebString (TicTacToeBoard. final-bs)
-                                      marker))} 200]))
+    (response-from-string (json/write-str {:boardState final-bs
+                                           :aiMove ai-move
+                                           :result nil}))))
 
 (defn new-game-form []
   (str "<form action=\"\" onsubmit=\"TicTacToe.initializeGame(); return false;\">"
@@ -50,60 +56,50 @@
     "<input type=\"submit\" value=\"Play!\">"
   "</form>"))
 
-(defn result-page [marker board_state]
+(defn result [marker board_state]
   (let [player (if (= marker "X") BoardMarker/X
                                   BoardMarker/O)
         board (TicTacToeBoard. board_state)
         winner (.winner board)]
     (condp = winner
       player
-        [{:content-stream (StringBufferInputStream.
-                            (str "<h1>You Won!</h1>"
-                                 (.toWebString board marker)
-                                 (new-game-form)))} 200]
+        "W"
       BoardMarker/T
-        [{:content-stream (StringBufferInputStream.
-                            (str "<h1>It Was a Tie!</h1>"
-                                 (.toWebString board marker)
-                                 (new-game-form)))} 200]
+        "T"
       BoardMarker/_
         nil
-      [{:content-stream (StringBufferInputStream.
-                            (str "<h1>You Lost!</h1>"
-                                 (.toWebString board marker)
-                                 (new-game-form)))} 200])))
+      "L")))
 
 (defn take-turn [request params]
   (let [settings (parse-query-to-params (first (:body request)))
         marker (:marker settings)
         board_state (:board_state settings)
-        result (result-page marker board_state)]
-    (if (nil? result)
+        res (result marker board_state)]
+    (if (nil? res)
         (let [ai-key (if (= marker "X") :O :X)
-              new-bs (make-ai-move ai-key board_state)
-              new-result (result-page marker new-bs)]
-          (if (nil? new-result)
-            [{:content-stream (StringBufferInputStream.
-                                (.toWebString
-                                 (TicTacToeBoard. new-bs) marker))}
-             200]
-              new-result))
-        result)))
+              [ai-move new-bs] (make-ai-move ai-key board_state)
+              new-res (result marker new-bs)]
+          (response-from-string
+            (json/write-str
+              {:boardState new-bs :aiMove ai-move :result new-res})))
+        (response-from-string
+          (json/write-str
+            {:boardState board_state :aiMove -1 :result res})))))
 
-(defn initialize-page [body]
+(defn initialize-page []
   (let [response
     (str "<!DOCTYPE html>"
          "<html><head>"
          "<link rel=\"stylesheet\" type=\"text/css\" href=\"/stylesheets/ttt_style.css\">"
          "<script src=\"/javascripts/jquery-1.10.2.min.js\"></script>"
          "<script src=\"/javascripts/TicTacToe.js\"></script>"
-         "</head><body><div id=\"board\">"
-         body
-         "</div></body></html>")]
-    [{:content-stream (StringBufferInputStream. response)} 200]))
+         "</head><body><div id=\"board\"></div>"
+         (new-game-form)
+         "</body></html>")]
+    (response-from-string response)))
 
 (defrouter router [request params]
-  (GET "/" (initialize-page (new-game-form)))
+  (GET "/" (initialize-page))
   (POST "/" (start-game request))
   (POST "/game" (take-turn request params))
   (GET "/stylesheets/:file" (serve-file (str @directory 
