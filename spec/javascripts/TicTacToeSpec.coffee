@@ -249,7 +249,6 @@ describe "makeMove", ->
     spyOn($, "ajax").andCallFake(
       (params) ->
         setTimeout(( ->
-          expect(TicTacToe.buttonsEnabled).toBe(false)
           params.success({"boardState": "X___O____", "aiMove": 4, "result": null})
           flag = true)
           0))
@@ -262,6 +261,7 @@ describe "makeMove", ->
 
     expect(TicTacToe.buttonsEnabled).toBe(true)
     TicTacToe.makeMove("X", "_________", 0)
+    expect(TicTacToe.buttonsEnabled).toBe(false)
 
 describe "initializeGame", ->
   beforeEach ->
