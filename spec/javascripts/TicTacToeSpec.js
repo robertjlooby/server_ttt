@@ -177,13 +177,10 @@
           return flag = true;
         }), 0);
       });
-      runs(function() {
-        return TicTacToe.makeMove("X", "_________", 0);
-      });
       waitsFor((function() {
         return flag;
       }), "Should call makeMove.", 1000);
-      return runs(function() {
+      runs(function() {
         expect($.ajax).toHaveBeenCalled();
         expect($.ajax.mostRecentCall.args[0].async).toBe(true);
         expect($.ajax.mostRecentCall.args[0].dataType).toBe("json");
@@ -195,6 +192,7 @@
         expect(TicTacToe.boardState).toBe("X___O____");
         return expect(TicTacToe.buttonsEnabled).toBe(true);
       });
+      return TicTacToe.makeMove("X", "_________", 0);
     });
     it("show 'Tie'/form and disabled buttons for tie", function() {
       var flag;
@@ -209,18 +207,16 @@
           return flag = true;
         }), 0);
       });
-      runs(function() {
-        return TicTacToe.makeMove("X", "XOXXOOOX_", 0);
-      });
       waitsFor((function() {
         return flag;
       }), "Should call makeMove.", 1000);
-      return runs(function() {
+      runs(function() {
         expect($("h1").html()).toMatch("Tie");
         expect($("form").css("display")).toBe("block");
         expect(TicTacToe.boardState).toBe("XOXXOOOXX");
         return expect(TicTacToe.buttonsEnabled).toBe(false);
       });
+      return TicTacToe.makeMove("X", "XOXXOOOX_", 0);
     });
     it("show 'Tie'/form and disabled buttons for tie after AI move", function() {
       var flag;
@@ -235,18 +231,16 @@
           return flag = true;
         }), 0);
       });
-      runs(function() {
-        return TicTacToe.makeMove("X", "OXOOXX_O_", 6);
-      });
       waitsFor((function() {
         return flag;
       }), "Should call makeMove.", 1000);
-      return runs(function() {
+      runs(function() {
         expect($("h1").html()).toMatch("Tie");
         expect($("form").css("display")).toBe("block");
         expect(TicTacToe.boardState).toBe("OXOOXXXOO");
         return expect(TicTacToe.buttonsEnabled).toBe(false);
       });
+      return TicTacToe.makeMove("X", "OXOOXX_O_", 6);
     });
     it("show 'Win'/form and disabled buttons for player win", function() {
       var flag;
@@ -261,18 +255,16 @@
           return flag = true;
         }), 0);
       });
-      runs(function() {
-        return TicTacToe.makeMove("X", "X_OOO_X_X", 7);
-      });
       waitsFor((function() {
         return flag;
       }), "Should call makeMove.", 1000);
-      return runs(function() {
+      runs(function() {
         expect($("h1").html()).toMatch("Win");
         expect($("form").css("display")).toBe("block");
         expect(TicTacToe.boardState).toBe("X_OOO_XXX");
         return expect(TicTacToe.buttonsEnabled).toBe(false);
       });
+      return TicTacToe.makeMove("X", "X_OOO_X_X", 7);
     });
     it("show 'Lose'/form and disabled buttons for player loss", function() {
       var flag;
@@ -287,18 +279,16 @@
           return flag = true;
         }), 0);
       });
-      runs(function() {
-        return TicTacToe.makeMove("X", "OX__O_O_X", 2);
-      });
       waitsFor((function() {
         return flag;
       }), "Should call makeMove.", 1000);
-      return runs(function() {
+      runs(function() {
         expect($("h1").html()).toMatch("Lose");
         expect($("form").css("display")).toBe("block");
         expect(TicTacToe.boardState).toBe("OXXOO_O_X");
         return expect(TicTacToe.buttonsEnabled).toBe(false);
       });
+      return TicTacToe.makeMove("X", "OX__O_O_X", 2);
     });
     return it("should disable buttons while waiting for server, enable buttons when move is returned", function() {
       var flag;
@@ -313,16 +303,14 @@
           return flag = true;
         }), 0);
       });
-      runs(function() {
-        return TicTacToe.makeMove("X", "_________", 0);
-      });
       waitsFor((function() {
         return flag;
       }), "Should call makeMove.", 1000);
       runs(function() {
         return expect(TicTacToe.buttonsEnabled).toBe(true);
       });
-      return expect(TicTacToe.buttonsEnabled).toBe(true);
+      expect(TicTacToe.buttonsEnabled).toBe(true);
+      return TicTacToe.makeMove("X", "_________", 0);
     });
   });
 
@@ -347,13 +335,10 @@
           return flag = true;
         }), 0);
       });
-      runs(function() {
-        return TicTacToe.initializeGame();
-      });
       waitsFor((function() {
         return flag;
       }), "Should call initialize game.", 1000);
-      return runs(function() {
+      runs(function() {
         expect($.ajax).toHaveBeenCalled();
         expect($.ajax.mostRecentCall.args[0].async).toBe(true);
         expect($.ajax.mostRecentCall.args[0].dataType).toBe("json");
@@ -363,6 +348,7 @@
         expect(TicTacToe.boardState).toBe("_________");
         return expect(TicTacToe.buttonsEnabled).toBe(true);
       });
+      return TicTacToe.initializeGame();
     });
     return it("should initialize game when moving second", function() {
       var flag;
@@ -377,16 +363,14 @@
           return flag = true;
         }), 0);
       });
-      runs(function() {
-        return TicTacToe.initializeGame();
-      });
       waitsFor((function() {
         return flag;
       }), "Should call initialize game.", 1000);
-      return runs(function() {
+      runs(function() {
         expect(TicTacToe.boardState).toBe("O________");
         return expect(TicTacToe.buttonsEnabled).toBe(true);
       });
+      return TicTacToe.initializeGame();
     });
   });
 
