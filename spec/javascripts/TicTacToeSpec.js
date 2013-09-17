@@ -147,30 +147,150 @@
   });
 
   describe("makeMove", function() {
-    xit("should call ajax", function() {
-      spyOn($, "ajax");
-      return expect($.ajax).toHaveBeenCalled;
+    beforeEach(function() {
+      affix("#board");
+      TicTacToe.resetBoard("X");
+      return affix("form").hide();
     });
-    xit("should call ajax with the board state and marker", function() {
-      spyOn($, "ajax");
-      TicTacToe.makeMove("X", "_________");
-      expect($.ajax.mostRecentCall.args[0].data.marker).toBe("X");
-      return expect($.ajax.mostRecentCall.args[0].data.board_state).toBe("_________");
-    });
-    xit("should send an asynchronous POST request to /game", function() {
-      spyOn($, "ajax");
-      TicTacToe.makeMove("X", "_________");
-      expect($.ajax.mostRecentCall.args[0].async).toBe(true);
-      expect($.ajax.mostRecentCall.args[0].type).toBe("POST");
-      return expect($.ajax.mostRecentCall.args[0].url).toBe("/game");
-    });
-    return xit("should call replace board on success with response", function() {
-      spyOn(TicTacToe, "replaceBoard");
+    it("should send an asynchronous POST request to /game", function() {
+      var flag;
       spyOn($, "ajax").andCallFake(function(params) {
-        return params.success("hey");
+        return params.success({
+          "boardState": "X___O____",
+          "aiMove": 4,
+          "result": null
+        });
       });
-      TicTacToe.makeMove("X", "_________");
-      return expect(TicTacToe.replaceBoard.mostRecentCall.args[0]).toBe("hey");
+      flag = false;
+      runs(function() {
+        return setTimeout((function() {
+          TicTacToe.makeMove("X", "_________", 0);
+          return flag = true;
+        }), 0);
+      });
+      waitsFor((function() {
+        return flag;
+      }), "Should call makeMove.", 1000);
+      return runs(function() {
+        expect($.ajax).toHaveBeenCalled();
+        expect($.ajax.mostRecentCall.args[0].async).toBe(true);
+        expect($.ajax.mostRecentCall.args[0].dataType).toBe("json");
+        expect($.ajax.mostRecentCall.args[0].type).toBe("POST");
+        expect($.ajax.mostRecentCall.args[0].url).toBe("/game");
+        expect($("form").css("display")).toBe("none");
+        expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', 'X___O____', 3\\)");
+        return $(".button").each(function() {
+          return expect($(this).css("display")).toBe("inline-block");
+        });
+      });
+    });
+    it("show 'Tie'/form and not buttons for tie", function() {
+      var flag;
+      spyOn($, "ajax").andCallFake(function(params) {
+        return params.success({
+          "boardState": "XOXXOOOXX",
+          "aiMove": -1,
+          "result": "T"
+        });
+      });
+      flag = false;
+      runs(function() {
+        return setTimeout((function() {
+          TicTacToe.makeMove("X", "XOXXOOOX_", 8);
+          return flag = true;
+        }), 0);
+      });
+      waitsFor((function() {
+        return flag;
+      }), "Should call makeMove.", 1000);
+      return runs(function() {
+        expect($("h1").html()).toMatch("Tie");
+        expect($("form").css("display")).toBe("block");
+        return $(".button").each(function() {
+          return expect($(this).css("display")).toBe("none");
+        });
+      });
+    });
+    it("show 'Tie'/form and not buttons for tie after AI move", function() {
+      var flag;
+      spyOn($, "ajax").andCallFake(function(params) {
+        return params.success({
+          "boardState": "OXOOXXXO_",
+          "aiMove": 8,
+          "result": "T"
+        });
+      });
+      flag = false;
+      runs(function() {
+        return setTimeout((function() {
+          TicTacToe.makeMove("X", "OXOOXX_O_", 6);
+          return flag = true;
+        }), 0);
+      });
+      waitsFor((function() {
+        return flag;
+      }), "Should call makeMove.", 1000);
+      return runs(function() {
+        expect($("h1").html()).toMatch("Tie");
+        expect($("form").css("display")).toBe("block");
+        return $(".button").each(function() {
+          return expect($(this).css("display")).toBe("none");
+        });
+      });
+    });
+    it("show 'Win'/form and not buttons for player win", function() {
+      var flag;
+      spyOn($, "ajax").andCallFake(function(params) {
+        return params.success({
+          "boardState": "X_OOO_XXX",
+          "aiMove": -1,
+          "result": "W"
+        });
+      });
+      flag = false;
+      runs(function() {
+        return setTimeout((function() {
+          TicTacToe.makeMove("X", "X_OOO_X_X", 7);
+          return flag = true;
+        }), 0);
+      });
+      waitsFor((function() {
+        return flag;
+      }), "Should call makeMove.", 1000);
+      return runs(function() {
+        expect($("h1").html()).toMatch("Win");
+        expect($("form").css("display")).toBe("block");
+        return $(".button").each(function() {
+          return expect($(this).css("display")).toBe("none");
+        });
+      });
+    });
+    return it("show 'Lose'/form and not buttons for player loss", function() {
+      var flag;
+      spyOn($, "ajax").andCallFake(function(params) {
+        return params.success({
+          "boardState": "OXXOO_O_X",
+          "aiMove": 3,
+          "result": "L"
+        });
+      });
+      flag = false;
+      runs(function() {
+        return setTimeout((function() {
+          TicTacToe.makeMove("X", "OX__O_O_X", 2);
+          return flag = true;
+        }), 0);
+      });
+      waitsFor((function() {
+        return flag;
+      }), "Should call makeMove.", 1000);
+      return runs(function() {
+        expect($("h1").html()).toMatch("Lose");
+        expect($("form").css("display")).toBe("block");
+        return $(".button").each(function() {
+          return expect($(this).css("display")).toBe("none");
+        });
+      });
     });
   });
 
@@ -178,19 +298,23 @@
     beforeEach(function() {
       var form;
       form = affix("form");
-      form.affix('input[name="marker"][value="X"]:checked');
-      form.affix('input[name="move"][value="0"]:checked');
+      form.affix('input[name="marker"][type="radio"][value="X"]').prop("checked", true);
+      form.affix('input[name="move"][type="radio"][value="0"]').prop("checked", true);
       return affix("#board");
     });
     it("should send an asynchronous POST request to / and initialize game", function() {
       var flag;
       spyOn($, "ajax").andCallFake(function(params) {
-        return params.success("O", "_________", -1, null);
+        return params.success({
+          "boardState": "_________",
+          "aiMove": -1,
+          "result": null
+        });
       });
       flag = false;
       runs(function() {
         return setTimeout((function() {
-          TicTacToe.initializeGame;
+          TicTacToe.initializeGame();
           return flag = true;
         }), 0);
       });
@@ -204,19 +328,34 @@
         expect($.ajax.mostRecentCall.args[0].type).toBe("POST");
         expect($.ajax.mostRecentCall.args[0].url).toBe("/");
         expect($("form").css("display")).toBe("none");
-        $(".button").each(function() {
-          return expect($(this).css("display")).toMatch("inline-block");
+        expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', '_________', 4\\)");
+        return $(".button").each(function() {
+          return expect($(this).css("display")).toBe("inline-block");
         });
-        return expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', '_________', 4\\)");
       });
     });
-    return xit("should call replace board on success with response", function() {
-      spyOn(TicTacToe, "replaceBoard");
+    return it("should initialize game when moving second", function() {
+      var flag;
       spyOn($, "ajax").andCallFake(function(params) {
-        return params.success("hey");
+        return params.success({
+          "boardState": "O________",
+          "aiMove": 0,
+          "result": null
+        });
       });
-      TicTacToe.initializeGame("X", "0");
-      return expect(TicTacToe.replaceBoard.mostRecentCall.args[0]).toBe("hey");
+      flag = false;
+      runs(function() {
+        return setTimeout((function() {
+          TicTacToe.initializeGame();
+          return flag = true;
+        }), 0);
+      });
+      waitsFor((function() {
+        return flag;
+      }), "Should call initialize game.", 1000);
+      return runs(function() {
+        return expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', 'O________', 4\\)");
+      });
     });
   });
 

@@ -120,45 +120,127 @@ describe "updateBoardAI", ->
       expect($(this).css("display")).toMatch("none")
 
 describe "makeMove", ->
-  xit "should call ajax", ->
-    spyOn $, "ajax"
-    expect($.ajax).toHaveBeenCalled
+  beforeEach ->
+    affix("#board")
+    TicTacToe.resetBoard("X")
+    affix("form").hide()
 
-  xit "should call ajax with the board state and marker", ->
-    spyOn $, "ajax"
-    TicTacToe.makeMove "X", "_________"
-    expect($.ajax.mostRecentCall.args[0].data.marker).toBe("X")
-    expect($.ajax.mostRecentCall.args[0].data.board_state).toBe("_________")
-
-  xit "should send an asynchronous POST request to /game", ->
-    spyOn $, "ajax"
-    TicTacToe.makeMove "X", "_________"
-    expect($.ajax.mostRecentCall.args[0].async).toBe(true)
-    expect($.ajax.mostRecentCall.args[0].type).toBe("POST")
-    expect($.ajax.mostRecentCall.args[0].url).toBe("/game")
-
-  xit "should call replace board on success with response", ->
-    spyOn TicTacToe, "replaceBoard"
+  it "should send an asynchronous POST request to /game", ->
     spyOn($, "ajax").andCallFake(
-      (params) -> params.success("hey"))
-    TicTacToe.makeMove "X", "_________"
-    expect(TicTacToe.replaceBoard.mostRecentCall.args[0]).toBe("hey")
+      (params) -> params.success({"boardState": "X___O____", "aiMove": 4, "result": null}))
+    flag = false
+    runs ->
+      setTimeout((->
+                    TicTacToe.makeMove("X", "_________", 0)
+                    flag = true),
+                  0)
+
+    waitsFor((-> flag),
+             "Should call makeMove.", 1000)
+
+    runs ->
+      expect($.ajax).toHaveBeenCalled()
+      expect($.ajax.mostRecentCall.args[0].async).toBe(true)
+      expect($.ajax.mostRecentCall.args[0].dataType).toBe("json")
+      expect($.ajax.mostRecentCall.args[0].type).toBe("POST")
+      expect($.ajax.mostRecentCall.args[0].url).toBe("/game")
+      expect($("form").css("display")).toBe("none")
+      expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', 'X___O____', 3\\)")
+      $(".button").each ->
+        expect($(this).css("display")).toBe("inline-block")
+
+  it "show 'Tie'/form and not buttons for tie", ->
+    spyOn($, "ajax").andCallFake(
+      (params) -> params.success({"boardState": "XOXXOOOXX", "aiMove": -1, "result": "T"}))
+    flag = false
+    runs ->
+      setTimeout((->
+                    TicTacToe.makeMove("X", "XOXXOOOX_", 8)
+                    flag = true),
+                  0)
+
+    waitsFor((-> flag),
+             "Should call makeMove.", 1000)
+
+    runs ->
+      expect($("h1").html()).toMatch("Tie")
+      expect($("form").css("display")).toBe("block")
+      $(".button").each ->
+        expect($(this).css("display")).toBe("none")
+
+  it "show 'Tie'/form and not buttons for tie after AI move", ->
+    spyOn($, "ajax").andCallFake(
+      (params) -> params.success({"boardState": "OXOOXXXO_", "aiMove": 8, "result": "T"}))
+    flag = false
+    runs ->
+      setTimeout((->
+                    TicTacToe.makeMove("X", "OXOOXX_O_", 6)
+                    flag = true),
+                  0)
+
+    waitsFor((-> flag),
+             "Should call makeMove.", 1000)
+
+    runs ->
+      expect($("h1").html()).toMatch("Tie")
+      expect($("form").css("display")).toBe("block")
+      $(".button").each ->
+        expect($(this).css("display")).toBe("none")
+
+  it "show 'Win'/form and not buttons for player win", ->
+    spyOn($, "ajax").andCallFake(
+      (params) -> params.success({"boardState": "X_OOO_XXX", "aiMove": -1, "result": "W"}))
+    flag = false
+    runs ->
+      setTimeout((->
+                    TicTacToe.makeMove("X", "X_OOO_X_X", 7)
+                    flag = true),
+                  0)
+
+    waitsFor((-> flag),
+             "Should call makeMove.", 1000)
+
+    runs ->
+      expect($("h1").html()).toMatch("Win")
+      expect($("form").css("display")).toBe("block")
+      $(".button").each ->
+        expect($(this).css("display")).toBe("none")
+
+  it "show 'Lose'/form and not buttons for player loss", ->
+    spyOn($, "ajax").andCallFake(
+      (params) -> params.success({"boardState": "OXXOO_O_X", "aiMove": 3, "result": "L"}))
+    flag = false
+    runs ->
+      setTimeout((->
+                    TicTacToe.makeMove("X", "OX__O_O_X", 2)
+                    flag = true),
+                  0)
+
+    waitsFor((-> flag),
+             "Should call makeMove.", 1000)
+
+    runs ->
+      expect($("h1").html()).toMatch("Lose")
+      expect($("form").css("display")).toBe("block")
+      $(".button").each ->
+        expect($(this).css("display")).toBe("none")
 
 describe "initializeGame", ->
   beforeEach ->
     form = affix("form")
-    form.affix('input[name="marker"][value="X"]:checked')
-    form.affix('input[name="move"][value="0"]:checked')
+    form.affix('input[name="marker"][type="radio"][value="X"]').prop("checked", true)
+    form.affix('input[name="move"][type="radio"][value="0"]').prop("checked", true)
     affix("#board")
 
   it "should send an asynchronous POST request to / and initialize game", ->
     spyOn($, "ajax").andCallFake(
-      (params) -> params.success("O", "_________", -1, null))
+      (params) -> params.success({"boardState": "_________", "aiMove": -1, "result": null}))
     flag = false
     runs ->
       setTimeout((->
-        TicTacToe.initializeGame
-        flag = true), 0)
+                    TicTacToe.initializeGame()
+                    flag = true),
+                  0)
 
     waitsFor((-> flag),
              "Should call initialize game.", 1000)
@@ -170,13 +252,22 @@ describe "initializeGame", ->
       expect($.ajax.mostRecentCall.args[0].type).toBe("POST")
       expect($.ajax.mostRecentCall.args[0].url).toBe("/")
       expect($("form").css("display")).toBe("none")
-      $(".button").each ->
-        expect($(this).css("display")).toMatch("inline-block")
       expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', '_________', 4\\)")
+      $(".button").each ->
+        expect($(this).css("display")).toBe("inline-block")
 
-  xit "should call replace board on success with response", ->
-    spyOn TicTacToe, "replaceBoard"
+  it "should initialize game when moving second", ->
     spyOn($, "ajax").andCallFake(
-      (params) -> params.success("hey"))
-    TicTacToe.initializeGame "X", "0"
-    expect(TicTacToe.replaceBoard.mostRecentCall.args[0]).toBe("hey")
+      (params) -> params.success({"boardState": "O________", "aiMove": 0, "result": null}))
+    flag = false
+    runs ->
+      setTimeout((->
+                    TicTacToe.initializeGame()
+                    flag = true),
+                  0)
+
+    waitsFor((-> flag),
+             "Should call initialize game.", 1000)
+
+    runs ->
+      expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', 'O________', 4\\)")
