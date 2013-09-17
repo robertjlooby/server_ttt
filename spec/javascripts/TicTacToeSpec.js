@@ -6,31 +6,62 @@
     });
     it("should reset the contents of #board", function() {
       TicTacToe.resetBoard("X");
-      return expect($("div#board").html()).toMatch("TicTacToe\.makeMove\\('X', '_________', 4\\)");
+      expect($("div#board").html()).toMatch("class=\"button\">0<");
+      expect($("div#board").html()).toMatch("<div id=\"row2\">");
+      return expect($("div#board").html()).toMatch("<div id=\"cell8\">");
     });
-    return it("should reset the contents of #board with the given marker", function() {
-      TicTacToe.resetBoard("O");
-      return expect($("div#board").html()).toMatch("TicTacToe\.makeMove\\('O', '_________', 8\\)");
+    it("should reset TicTacToe.boardState to an empty board", function() {
+      TicTacToe.boardState = "blahblah";
+      TicTacToe.resetBoard("X");
+      return expect(TicTacToe.boardState).toBe("_________");
+    });
+    return it("should reset TicTacToe.buttonsEnabled to false", function() {
+      TicTacToe.buttonsEnabled = true;
+      TicTacToe.resetBoard("X");
+      return expect(TicTacToe.buttonsEnabled).toBe(false);
     });
   });
 
-  describe("button visibility", function() {
+  describe("button clickability", function() {
     beforeEach(function() {
       affix("#board");
       return TicTacToe.resetBoard("X");
     });
-    it("should hide all .button 's", function() {
-      TicTacToe.hideButtons();
-      return $(".button").each(function() {
-        return expect($(this).css("display")).toBe("none");
+    it("buttons should do nothing by default", function() {
+      var initialBoard;
+      initialBoard = $("#board").html();
+      spyOn(TicTacToe, "makeMove");
+      $(".button").each(function() {
+        $(this).click();
+        return expect($("#board").html()).toBe(initialBoard);
       });
+      return expect(TicTacToe.makeMove).not.toHaveBeenCalled();
     });
-    return it("should show all .button 's", function() {
-      TicTacToe.hideButtons();
-      TicTacToe.showButtons();
-      return $(".button").each(function() {
-        return expect($(this).css("display")).toBe("inline-block");
+    it("should enable all buttons", function() {
+      var cell, _i, _results;
+      spyOn(TicTacToe, "makeMove");
+      TicTacToe.enableButtons();
+      $(".button").each(function() {
+        return $(this).click();
       });
+      expect(TicTacToe.makeMove.calls.length).toBe(9);
+      _results = [];
+      for (cell = _i = 0; _i <= 8; cell = ++_i) {
+        _results.push(expect(TicTacToe.makeMove).toHaveBeenCalledWith("X", "_________", cell));
+      }
+      return _results;
+    });
+    return it("should be able to disable buttons again", function() {
+      var initialBoard;
+      initialBoard = $("#board").html();
+      spyOn(TicTacToe, "makeMove");
+      TicTacToe.enableButtons();
+      TicTacToe.disableButtons();
+      $(".button").each(function() {
+        $(this).click();
+        return expect($("#board").html()).toBe(initialBoard);
+      });
+      return expect(TicTacToe.makeMove).not.toHaveBeenCalled();
     });
   });
 
@@ -61,15 +92,10 @@
       TicTacToe.setUpBoard("X");
       return expect($("form").css("display")).toBe("none");
     });
-    it("should reset the board", function() {
+    return it("should reset the board", function() {
       TicTacToe.setUpBoard("X");
-      return expect($(".button").size()).toBe(9);
-    });
-    return it("should hide all .button 's", function() {
-      TicTacToe.setUpBoard("X");
-      return $(".button").each(function() {
-        return expect($(this).css("display")).toBe("none");
-      });
+      expect($(".button").size()).toBe(9);
+      return expect(TicTacToe.boardState).toBe("_________");
     });
   });
 
@@ -82,17 +108,13 @@
       TicTacToe.updateBoardHuman("X", "_________", 0);
       return expect($("#cell0").html()).toBe("X");
     });
-    it("should hide all the buttons", function() {
+    it("should disable buttons", function() {
       TicTacToe.updateBoardHuman("X", "_________", 0);
-      return $(".button").each(function() {
-        return expect($(this).css("display")).toMatch("none");
-      });
+      return expect(TicTacToe.buttonsEnabled).toBe(false);
     });
-    return it("should update the boardState in all the buttons", function() {
+    return it("should update the boardState", function() {
       TicTacToe.updateBoardHuman("X", "X________", 0);
-      return $(".button").each(function() {
-        return expect($(this).attr("onclick")).toMatch("X________");
-      });
+      return expect(TicTacToe.boardState).toBe("X________");
     });
   });
 
@@ -101,48 +123,37 @@
       affix("form");
       $("form").hide();
       affix("#board");
-      TicTacToe.resetBoard("X");
-      return TicTacToe.hideButtons();
+      return TicTacToe.resetBoard("X");
     });
     it("should make the aiMove in the given cell", function() {
       TicTacToe.updateBoardAI("O", "X___O____", 4, null);
       return expect($("#cell4").html()).toBe("O");
     });
-    it("should update the boardState in all the buttons", function() {
+    it("should update the boardState", function() {
       TicTacToe.updateBoardAI("O", "X___O____", 4, null);
-      return $(".button").each(function() {
-        return expect($(this).attr("onclick")).toMatch("X___O____");
-      });
+      return expect(TicTacToe.boardState).toBe("X___O____");
     });
-    it("should make all buttons visible again", function() {
+    it("should enable buttons again", function() {
       TicTacToe.updateBoardAI("O", "X___O____", 4, null);
-      return $(".button").each(function() {
-        return expect($(this).css("display")).toMatch("inline-block");
-      });
+      return expect(TicTacToe.buttonsEnabled).toBe(true);
     });
-    it("should display win message and form when player wins, not buttons", function() {
+    it("should display win message and form when player wins, buttons should be disabled", function() {
       TicTacToe.updateBoardAI("O", "X_OOX_XOX", 7, "W");
       expect($("h1").html()).toMatch("Win");
       expect($("form").css("display")).toBe("block");
-      return $(".button").each(function() {
-        return expect($(this).css("display")).toMatch("none");
-      });
+      return expect(TicTacToe.buttonsEnabled).toBe(false);
     });
-    it("should display lose message and form when player loses, not buttons", function() {
+    it("should display lose message and form when player loses, buttons should be disabled", function() {
       TicTacToe.updateBoardAI("X", "X_OOX_XOX", 8, "L");
       expect($("h1").html()).toMatch("Lose");
       expect($("form").css("display")).toBe("block");
-      return $(".button").each(function() {
-        return expect($(this).css("display")).toMatch("none");
-      });
+      return expect(TicTacToe.buttonsEnabled).toBe(false);
     });
-    return it("should display tie message and form when player ties, not buttons", function() {
+    return it("should display tie message and form when player ties, buttons should be disabled", function() {
       TicTacToe.updateBoardAI("X", "XOXOOXXXO", 5, "T");
       expect($("h1").html()).toMatch("Tie");
       expect($("form").css("display")).toBe("block");
-      return $(".button").each(function() {
-        return expect($(this).css("display")).toMatch("none");
-      });
+      return expect(TicTacToe.buttonsEnabled).toBe(false);
     });
   });
 
@@ -150,6 +161,7 @@
     beforeEach(function() {
       affix("#board");
       TicTacToe.resetBoard("X");
+      TicTacToe.enableButtons();
       return affix("form").hide();
     });
     it("should send an asynchronous POST request to /game", function() {
@@ -178,13 +190,13 @@
         expect($.ajax.mostRecentCall.args[0].type).toBe("POST");
         expect($.ajax.mostRecentCall.args[0].url).toBe("/game");
         expect($("form").css("display")).toBe("none");
-        expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', 'X___O____', 3\\)");
-        return $(".button").each(function() {
-          return expect($(this).css("display")).toBe("inline-block");
-        });
+        expect($("#cell0").html()).toBe("X");
+        expect($("#cell4").html()).toBe("O");
+        expect(TicTacToe.boardState).toBe("X___O____");
+        return expect(TicTacToe.buttonsEnabled).toBe(true);
       });
     });
-    it("show 'Tie'/form and not buttons for tie", function() {
+    it("show 'Tie'/form and disabled buttons for tie", function() {
       var flag;
       spyOn($, "ajax").andCallFake(function(params) {
         return params.success({
@@ -206,16 +218,15 @@
       return runs(function() {
         expect($("h1").html()).toMatch("Tie");
         expect($("form").css("display")).toBe("block");
-        return $(".button").each(function() {
-          return expect($(this).css("display")).toBe("none");
-        });
+        expect(TicTacToe.boardState).toBe("XOXXOOOXX");
+        return expect(TicTacToe.buttonsEnabled).toBe(false);
       });
     });
-    it("show 'Tie'/form and not buttons for tie after AI move", function() {
+    it("show 'Tie'/form and disabled buttons for tie after AI move", function() {
       var flag;
       spyOn($, "ajax").andCallFake(function(params) {
         return params.success({
-          "boardState": "OXOOXXXO_",
+          "boardState": "OXOOXXXOO",
           "aiMove": 8,
           "result": "T"
         });
@@ -233,12 +244,11 @@
       return runs(function() {
         expect($("h1").html()).toMatch("Tie");
         expect($("form").css("display")).toBe("block");
-        return $(".button").each(function() {
-          return expect($(this).css("display")).toBe("none");
-        });
+        expect(TicTacToe.boardState).toBe("OXOOXXXOO");
+        return expect(TicTacToe.buttonsEnabled).toBe(false);
       });
     });
-    it("show 'Win'/form and not buttons for player win", function() {
+    it("show 'Win'/form and disabled buttons for player win", function() {
       var flag;
       spyOn($, "ajax").andCallFake(function(params) {
         return params.success({
@@ -260,12 +270,11 @@
       return runs(function() {
         expect($("h1").html()).toMatch("Win");
         expect($("form").css("display")).toBe("block");
-        return $(".button").each(function() {
-          return expect($(this).css("display")).toBe("none");
-        });
+        expect(TicTacToe.boardState).toBe("X_OOO_XXX");
+        return expect(TicTacToe.buttonsEnabled).toBe(false);
       });
     });
-    return it("show 'Lose'/form and not buttons for player loss", function() {
+    it("show 'Lose'/form and disabled buttons for player loss", function() {
       var flag;
       spyOn($, "ajax").andCallFake(function(params) {
         return params.success({
@@ -287,10 +296,34 @@
       return runs(function() {
         expect($("h1").html()).toMatch("Lose");
         expect($("form").css("display")).toBe("block");
-        return $(".button").each(function() {
-          return expect($(this).css("display")).toBe("none");
+        expect(TicTacToe.boardState).toBe("OXXOO_O_X");
+        return expect(TicTacToe.buttonsEnabled).toBe(false);
+      });
+    });
+    return it("should disable buttons while waiting for server, enable buttons when move is returned", function() {
+      var flag;
+      spyOn($, "ajax").andCallFake(function(params) {
+        expect(TicTacToe.buttonsEnabled).toBe(false);
+        return params.success({
+          "boardState": "X___O____",
+          "aiMove": 4,
+          "result": null
         });
       });
+      flag = false;
+      runs(function() {
+        return setTimeout((function() {
+          TicTacToe.makeMove("X", "_________", 0);
+          return flag = true;
+        }), 5);
+      });
+      waitsFor((function() {
+        return flag;
+      }), "Should call makeMove.", 1000);
+      runs(function() {
+        return expect(TicTacToe.buttonsEnabled).toBe(true);
+      });
+      return expect(TicTacToe.buttonsEnabled).toBe(true);
     });
   });
 
@@ -328,10 +361,8 @@
         expect($.ajax.mostRecentCall.args[0].type).toBe("POST");
         expect($.ajax.mostRecentCall.args[0].url).toBe("/");
         expect($("form").css("display")).toBe("none");
-        expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', '_________', 4\\)");
-        return $(".button").each(function() {
-          return expect($(this).css("display")).toBe("inline-block");
-        });
+        expect(TicTacToe.boardState).toBe("_________");
+        return expect(TicTacToe.buttonsEnabled).toBe(true);
       });
     });
     return it("should initialize game when moving second", function() {
@@ -354,7 +385,8 @@
         return flag;
       }), "Should call initialize game.", 1000);
       return runs(function() {
-        return expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', 'O________', 4\\)");
+        expect(TicTacToe.boardState).toBe("O________");
+        return expect(TicTacToe.buttonsEnabled).toBe(true);
       });
     });
   });

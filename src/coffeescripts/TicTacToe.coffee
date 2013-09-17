@@ -1,12 +1,30 @@
 TicTacToe =
+  buttonsEnabled: false
+  boardState: "_________"
   resetBoard: (marker) ->
-    $("div#board").html("<div id=\"row0\"><div id=\"cell0\"><button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('#{marker}', '_________', 0)\">0</button></div><div id=\"cell1\"><button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('#{marker}', '_________', 1)\">1</button></div><div id=\"cell2\"><button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('#{marker}', '_________', 2)\">2</button></div></div><div id=\"row1\"><div id=\"cell3\"><button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('#{marker}', '_________', 3)\">3</button></div><div id=\"cell4\"><button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('#{marker}', '_________', 4)\">4</button></div><div id=\"cell5\"><button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('#{marker}', '_________', 5)\">5</button></div></div><div id=\"row2\"><div id=\"cell6\"><button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('#{marker}', '_________', 6)\">6</button></div><div id=\"cell7\"><button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('#{marker}', '_________', 7)\">7</button></div><div id=\"cell8\"><button type=\"button\" class=\"button\" onclick=\"TicTacToe.makeMove('#{marker}', '_________', 8)\">8</button></div></div>")
+    str = ""
+    for row in [0..2]
+      str += "<div id=\"row#{row}\">"
+      for col in [0..2]
+        cell = (3 * row) + col
+        str += "<div id=\"cell#{cell}\">
+                  <button type=\"button\" class=\"button\">#{cell}</button>
+                </div>"
+      str += "</div>"
+    $("#board").html(str)
+    TicTacToe.buttonsEnabled = false
+    TicTacToe.boardState = "_________"
+    for cell in [0..8]
+      do (cell) ->
+        $("#cell#{cell} .button").click( ->
+          if TicTacToe.buttonsEnabled
+            TicTacToe.makeMove(marker, TicTacToe.boardState, cell))
 
-  hideButtons: ->
-    $(".button").hide()
+  disableButtons: ->
+    TicTacToe.buttonsEnabled = false
 
-  showButtons: ->
-    $(".button").show()
+  enableButtons: ->
+    TicTacToe.buttonsEnabled = true
 
   getNewBoardState: (marker, boardState, cellNum) ->
     "#{boardState.slice(0, cellNum)}#{marker}#{boardState.slice(cellNum + 1)}"
@@ -14,20 +32,15 @@ TicTacToe =
   setUpBoard: (marker) ->
     $("form").hide()
     TicTacToe.resetBoard(marker)
-    TicTacToe.hideButtons()
 
   updateBoardHuman: (marker, boardState, move) ->
-    TicTacToe.hideButtons()
+    TicTacToe.disableButtons()
     $("#cell#{move}").html(marker)
-    $(".button").each ->
-      $(this).attr("onclick", (index, oldHtml) ->
-        oldHtml.replace(/[XO_]{9}/, boardState))
+    TicTacToe.boardState = boardState
 
   updateBoardAI: (aiMarker, boardState, aiMove, result) ->
     $("#cell#{aiMove}").html(aiMarker)
-    $(".button").each ->
-      $(this).attr("onclick", (index, oldHtml) ->
-        oldHtml.replace(/[XO_]{9}/, boardState))
+    TicTacToe.boardState = boardState
     switch result
       when "W"
         $("#board").prepend("<h1>You Win!</h1>")
@@ -39,7 +52,7 @@ TicTacToe =
         $("#board").prepend("<h1>It is a Tie!</h1>")
         $("form").show()
       else
-        TicTacToe.showButtons()
+        TicTacToe.enableButtons()
 
   makeMove: (marker, boardState, cellNum) ->
     newBoardState = TicTacToe.getNewBoardState marker, boardState, cellNum

@@ -4,27 +4,51 @@ describe "resetBoard", ->
 
   it "should reset the contents of #board", ->
     TicTacToe.resetBoard "X"
-    expect($("div#board").html()).toMatch("TicTacToe\.makeMove\\('X', '_________', 4\\)")
+    expect($("div#board").html()).toMatch("class=\"button\">0<")
+    expect($("div#board").html()).toMatch("<div id=\"row2\">")
+    expect($("div#board").html()).toMatch("<div id=\"cell8\">")
 
-  it "should reset the contents of #board with the given marker", ->
-    TicTacToe.resetBoard "O"
-    expect($("div#board").html()).toMatch("TicTacToe\.makeMove\\('O', '_________', 8\\)")
+  it "should reset TicTacToe.boardState to an empty board", ->
+    TicTacToe.boardState = "blahblah"
+    TicTacToe.resetBoard "X"
+    expect(TicTacToe.boardState).toBe("_________")
 
-describe "button visibility", ->
+  it "should reset TicTacToe.buttonsEnabled to false", ->
+    TicTacToe.buttonsEnabled = true
+    TicTacToe.resetBoard "X"
+    expect(TicTacToe.buttonsEnabled).toBe(false)
+
+describe "button clickability", ->
   beforeEach ->
     affix("#board")
     TicTacToe.resetBoard "X"
 
-  it "should hide all .button 's", ->
-    TicTacToe.hideButtons()
+  it "buttons should do nothing by default", ->
+    initialBoard = $("#board").html()
+    spyOn(TicTacToe, "makeMove")
     $(".button").each ->
-      expect($(this).css("display")).toBe("none")
+      $(this).click()
+      expect($("#board").html()).toBe(initialBoard)
+    expect(TicTacToe.makeMove).not.toHaveBeenCalled()
 
-  it "should show all .button 's", ->
-    TicTacToe.hideButtons()
-    TicTacToe.showButtons()
+  it "should enable all buttons", ->
+    spyOn(TicTacToe, "makeMove")
+    TicTacToe.enableButtons()
     $(".button").each ->
-      expect($(this).css("display")).toBe("inline-block")
+      $(this).click()
+    expect(TicTacToe.makeMove.calls.length).toBe(9)
+    for cell in [0..8]
+      expect(TicTacToe.makeMove).toHaveBeenCalledWith("X", "_________", cell)
+
+  it "should be able to disable buttons again", ->
+    initialBoard = $("#board").html()
+    spyOn(TicTacToe, "makeMove")
+    TicTacToe.enableButtons()
+    TicTacToe.disableButtons()
+    $(".button").each ->
+      $(this).click()
+      expect($("#board").html()).toBe(initialBoard)
+    expect(TicTacToe.makeMove).not.toHaveBeenCalled()
 
 describe "getNewBoardState", ->
   it "should replace first element", ->
@@ -51,11 +75,7 @@ describe "setUpBoard", ->
   it "should reset the board", ->
     TicTacToe.setUpBoard("X")
     expect($(".button").size()).toBe(9)
-
-  it "should hide all .button 's", ->
-    TicTacToe.setUpBoard("X")
-    $(".button").each ->
-      expect($(this).css("display")).toBe("none")
+    expect(TicTacToe.boardState).toBe("_________")
 
 describe "updateBoardHuman", ->
   beforeEach ->
@@ -66,15 +86,13 @@ describe "updateBoardHuman", ->
     TicTacToe.updateBoardHuman "X", "_________", 0
     expect($("#cell0").html()).toBe("X")
 
-  it "should hide all the buttons", ->
+  it "should disable buttons", ->
     TicTacToe.updateBoardHuman "X", "_________", 0
-    $(".button").each ->
-      expect($(this).css("display")).toMatch("none")
+    expect(TicTacToe.buttonsEnabled).toBe(false)
 
-  it "should update the boardState in all the buttons", ->
+  it "should update the boardState", ->
     TicTacToe.updateBoardHuman "X", "X________", 0
-    $(".button").each ->
-      expect($(this).attr("onclick")).toMatch("X________")
+    expect(TicTacToe.boardState).toBe("X________")
 
 describe "updateBoardAI", ->
   beforeEach ->
@@ -82,47 +100,42 @@ describe "updateBoardAI", ->
     $("form").hide()
     affix("#board")
     TicTacToe.resetBoard "X"
-    TicTacToe.hideButtons()
 
   it "should make the aiMove in the given cell", ->
     TicTacToe.updateBoardAI "O", "X___O____", 4, null
     expect($("#cell4").html()).toBe("O")
 
-  it "should update the boardState in all the buttons", ->
+  it "should update the boardState", ->
     TicTacToe.updateBoardAI "O", "X___O____", 4, null
-    $(".button").each ->
-      expect($(this).attr("onclick")).toMatch("X___O____")
+    expect(TicTacToe.boardState).toBe("X___O____")
 
-  it "should make all buttons visible again", ->
+  it "should enable buttons again", ->
     TicTacToe.updateBoardAI "O", "X___O____", 4, null
-    $(".button").each ->
-      expect($(this).css("display")).toMatch("inline-block")
+    expect(TicTacToe.buttonsEnabled).toBe(true)
 
-  it "should display win message and form when player wins, not buttons", ->
+  it "should display win message and form when player wins, buttons should be disabled", ->
     TicTacToe.updateBoardAI "O", "X_OOX_XOX", 7, "W"
     expect($("h1").html()).toMatch("Win")
     expect($("form").css("display")).toBe("block")
-    $(".button").each ->
-      expect($(this).css("display")).toMatch("none")
+    expect(TicTacToe.buttonsEnabled).toBe(false)
 
-  it "should display lose message and form when player loses, not buttons", ->
+  it "should display lose message and form when player loses, buttons should be disabled", ->
     TicTacToe.updateBoardAI "X", "X_OOX_XOX", 8, "L"
     expect($("h1").html()).toMatch("Lose")
     expect($("form").css("display")).toBe("block")
-    $(".button").each ->
-      expect($(this).css("display")).toMatch("none")
+    expect(TicTacToe.buttonsEnabled).toBe(false)
 
-  it "should display tie message and form when player ties, not buttons", ->
+  it "should display tie message and form when player ties, buttons should be disabled", ->
     TicTacToe.updateBoardAI "X", "XOXOOXXXO", 5, "T"
     expect($("h1").html()).toMatch("Tie")
     expect($("form").css("display")).toBe("block")
-    $(".button").each ->
-      expect($(this).css("display")).toMatch("none")
+    expect(TicTacToe.buttonsEnabled).toBe(false)
 
 describe "makeMove", ->
   beforeEach ->
     affix("#board")
     TicTacToe.resetBoard("X")
+    TicTacToe.enableButtons()
     affix("form").hide()
 
   it "should send an asynchronous POST request to /game", ->
@@ -145,11 +158,12 @@ describe "makeMove", ->
       expect($.ajax.mostRecentCall.args[0].type).toBe("POST")
       expect($.ajax.mostRecentCall.args[0].url).toBe("/game")
       expect($("form").css("display")).toBe("none")
-      expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', 'X___O____', 3\\)")
-      $(".button").each ->
-        expect($(this).css("display")).toBe("inline-block")
+      expect($("#cell0").html()).toBe("X")
+      expect($("#cell4").html()).toBe("O")
+      expect(TicTacToe.boardState).toBe("X___O____")
+      expect(TicTacToe.buttonsEnabled).toBe(true)
 
-  it "show 'Tie'/form and not buttons for tie", ->
+  it "show 'Tie'/form and disabled buttons for tie", ->
     spyOn($, "ajax").andCallFake(
       (params) -> params.success({"boardState": "XOXXOOOXX", "aiMove": -1, "result": "T"}))
     flag = false
@@ -165,12 +179,12 @@ describe "makeMove", ->
     runs ->
       expect($("h1").html()).toMatch("Tie")
       expect($("form").css("display")).toBe("block")
-      $(".button").each ->
-        expect($(this).css("display")).toBe("none")
+      expect(TicTacToe.boardState).toBe("XOXXOOOXX")
+      expect(TicTacToe.buttonsEnabled).toBe(false)
 
-  it "show 'Tie'/form and not buttons for tie after AI move", ->
+  it "show 'Tie'/form and disabled buttons for tie after AI move", ->
     spyOn($, "ajax").andCallFake(
-      (params) -> params.success({"boardState": "OXOOXXXO_", "aiMove": 8, "result": "T"}))
+      (params) -> params.success({"boardState": "OXOOXXXOO", "aiMove": 8, "result": "T"}))
     flag = false
     runs ->
       setTimeout((->
@@ -184,10 +198,10 @@ describe "makeMove", ->
     runs ->
       expect($("h1").html()).toMatch("Tie")
       expect($("form").css("display")).toBe("block")
-      $(".button").each ->
-        expect($(this).css("display")).toBe("none")
+      expect(TicTacToe.boardState).toBe("OXOOXXXOO")
+      expect(TicTacToe.buttonsEnabled).toBe(false)
 
-  it "show 'Win'/form and not buttons for player win", ->
+  it "show 'Win'/form and disabled buttons for player win", ->
     spyOn($, "ajax").andCallFake(
       (params) -> params.success({"boardState": "X_OOO_XXX", "aiMove": -1, "result": "W"}))
     flag = false
@@ -203,10 +217,10 @@ describe "makeMove", ->
     runs ->
       expect($("h1").html()).toMatch("Win")
       expect($("form").css("display")).toBe("block")
-      $(".button").each ->
-        expect($(this).css("display")).toBe("none")
+      expect(TicTacToe.boardState).toBe("X_OOO_XXX")
+      expect(TicTacToe.buttonsEnabled).toBe(false)
 
-  it "show 'Lose'/form and not buttons for player loss", ->
+  it "show 'Lose'/form and disabled buttons for player loss", ->
     spyOn($, "ajax").andCallFake(
       (params) -> params.success({"boardState": "OXXOO_O_X", "aiMove": 3, "result": "L"}))
     flag = false
@@ -222,8 +236,28 @@ describe "makeMove", ->
     runs ->
       expect($("h1").html()).toMatch("Lose")
       expect($("form").css("display")).toBe("block")
-      $(".button").each ->
-        expect($(this).css("display")).toBe("none")
+      expect(TicTacToe.boardState).toBe("OXXOO_O_X")
+      expect(TicTacToe.buttonsEnabled).toBe(false)
+
+  it "should disable buttons while waiting for server, enable buttons when move is returned", ->
+    spyOn($, "ajax").andCallFake(
+      (params) ->
+        expect(TicTacToe.buttonsEnabled).toBe(false)
+        params.success({"boardState": "X___O____", "aiMove": 4, "result": null}))
+    flag = false
+    runs ->
+      setTimeout((->
+                    TicTacToe.makeMove("X", "_________", 0)
+                    flag = true),
+                  5)
+
+    waitsFor((-> flag),
+             "Should call makeMove.", 1000)
+
+    runs ->
+      expect(TicTacToe.buttonsEnabled).toBe(true)
+
+    expect(TicTacToe.buttonsEnabled).toBe(true)
 
 describe "initializeGame", ->
   beforeEach ->
@@ -252,9 +286,8 @@ describe "initializeGame", ->
       expect($.ajax.mostRecentCall.args[0].type).toBe("POST")
       expect($.ajax.mostRecentCall.args[0].url).toBe("/")
       expect($("form").css("display")).toBe("none")
-      expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', '_________', 4\\)")
-      $(".button").each ->
-        expect($(this).css("display")).toBe("inline-block")
+      expect(TicTacToe.boardState).toBe("_________")
+      expect(TicTacToe.buttonsEnabled).toBe(true)
 
   it "should initialize game when moving second", ->
     spyOn($, "ajax").andCallFake(
@@ -270,4 +303,5 @@ describe "initializeGame", ->
              "Should call initialize game.", 1000)
 
     runs ->
-      expect($("#board").html()).toMatch("TicTacToe\.makeMove\\('X', 'O________', 4\\)")
+      expect(TicTacToe.boardState).toBe("O________")
+      expect(TicTacToe.buttonsEnabled).toBe(true)
