@@ -295,6 +295,7 @@
       flag = false;
       spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
+          expect(TicTacToe.buttonsEnabled).toBe(false);
           params.success({
             "boardState": "X___O____",
             "aiMove": 4,
