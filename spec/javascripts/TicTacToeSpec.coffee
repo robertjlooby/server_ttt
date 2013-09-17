@@ -139,14 +139,15 @@ describe "makeMove", ->
     affix("form").hide()
 
   it "should send an asynchronous POST request to /game", ->
-    spyOn($, "ajax").andCallFake(
-      (params) -> params.success({"boardState": "X___O____", "aiMove": 4, "result": null}))
     flag = false
+    spyOn($, "ajax").andCallFake(
+      (params) ->
+        setTimeout(( ->
+          params.success({"boardState": "X___O____", "aiMove": 4, "result": null})
+          flag = true)
+          0))
     runs ->
-      setTimeout((->
-                    TicTacToe.makeMove("X", "_________", 0)
-                    flag = true),
-                  0)
+          TicTacToe.makeMove("X", "_________", 0)
 
     waitsFor((-> flag),
              "Should call makeMove.", 1000)
@@ -164,14 +165,15 @@ describe "makeMove", ->
       expect(TicTacToe.buttonsEnabled).toBe(true)
 
   it "show 'Tie'/form and disabled buttons for tie", ->
-    spyOn($, "ajax").andCallFake(
-      (params) -> params.success({"boardState": "XOXXOOOXX", "aiMove": -1, "result": "T"}))
     flag = false
+    spyOn($, "ajax").andCallFake(
+      (params) ->
+        setTimeout(( ->
+          params.success({"boardState": "XOXXOOOXX", "aiMove": -1, "result": "T"})
+          flag = true)
+          0))
     runs ->
-      setTimeout((->
-                    TicTacToe.makeMove("X", "XOXXOOOX_", 8)
-                    flag = true),
-                  0)
+          TicTacToe.makeMove("X", "XOXXOOOX_", 0)
 
     waitsFor((-> flag),
              "Should call makeMove.", 1000)
@@ -183,14 +185,15 @@ describe "makeMove", ->
       expect(TicTacToe.buttonsEnabled).toBe(false)
 
   it "show 'Tie'/form and disabled buttons for tie after AI move", ->
-    spyOn($, "ajax").andCallFake(
-      (params) -> params.success({"boardState": "OXOOXXXOO", "aiMove": 8, "result": "T"}))
     flag = false
+    spyOn($, "ajax").andCallFake(
+      (params) ->
+        setTimeout(( ->
+          params.success({"boardState": "OXOOXXXOO", "aiMove": 8, "result": "T"})
+          flag = true)
+          0))
     runs ->
-      setTimeout((->
-                    TicTacToe.makeMove("X", "OXOOXX_O_", 6)
-                    flag = true),
-                  0)
+          TicTacToe.makeMove("X", "OXOOXX_O_", 6)
 
     waitsFor((-> flag),
              "Should call makeMove.", 1000)
@@ -202,14 +205,15 @@ describe "makeMove", ->
       expect(TicTacToe.buttonsEnabled).toBe(false)
 
   it "show 'Win'/form and disabled buttons for player win", ->
-    spyOn($, "ajax").andCallFake(
-      (params) -> params.success({"boardState": "X_OOO_XXX", "aiMove": -1, "result": "W"}))
     flag = false
+    spyOn($, "ajax").andCallFake(
+      (params) ->
+        setTimeout(( ->
+          params.success({"boardState": "X_OOO_XXX", "aiMove": -1, "result": "W"})
+          flag = true)
+          0))
     runs ->
-      setTimeout((->
-                    TicTacToe.makeMove("X", "X_OOO_X_X", 7)
-                    flag = true),
-                  0)
+          TicTacToe.makeMove("X", "X_OOO_X_X", 7)
 
     waitsFor((-> flag),
              "Should call makeMove.", 1000)
@@ -221,14 +225,15 @@ describe "makeMove", ->
       expect(TicTacToe.buttonsEnabled).toBe(false)
 
   it "show 'Lose'/form and disabled buttons for player loss", ->
-    spyOn($, "ajax").andCallFake(
-      (params) -> params.success({"boardState": "OXXOO_O_X", "aiMove": 3, "result": "L"}))
     flag = false
+    spyOn($, "ajax").andCallFake(
+      (params) ->
+        setTimeout(( ->
+          params.success({"boardState": "OXXOO_O_X", "aiMove": 3, "result": "L"})
+          flag = true)
+          0))
     runs ->
-      setTimeout((->
-                    TicTacToe.makeMove("X", "OX__O_O_X", 2)
-                    flag = true),
-                  0)
+          TicTacToe.makeMove("X", "OX__O_O_X", 2)
 
     waitsFor((-> flag),
              "Should call makeMove.", 1000)
@@ -240,16 +245,15 @@ describe "makeMove", ->
       expect(TicTacToe.buttonsEnabled).toBe(false)
 
   it "should disable buttons while waiting for server, enable buttons when move is returned", ->
+    flag = false
     spyOn($, "ajax").andCallFake(
       (params) ->
-        expect(TicTacToe.buttonsEnabled).toBe(false)
-        params.success({"boardState": "X___O____", "aiMove": 4, "result": null}))
-    flag = false
+        setTimeout(( ->
+          params.success({"boardState": "X___O____", "aiMove": 4, "result": null})
+          flag = true)
+          0))
     runs ->
-      setTimeout((->
-                    TicTacToe.makeMove("X", "_________", 0)
-                    flag = true),
-                  5)
+          TicTacToe.makeMove("X", "_________", 0)
 
     waitsFor((-> flag),
              "Should call makeMove.", 1000)
@@ -267,14 +271,15 @@ describe "initializeGame", ->
     affix("#board")
 
   it "should send an asynchronous POST request to / and initialize game", ->
-    spyOn($, "ajax").andCallFake(
-      (params) -> params.success({"boardState": "_________", "aiMove": -1, "result": null}))
     flag = false
+    spyOn($, "ajax").andCallFake(
+      (params) ->
+        setTimeout(( ->
+          params.success({"boardState": "_________", "aiMove": -1, "result": null})
+          flag = true)
+          0))
     runs ->
-      setTimeout((->
-                    TicTacToe.initializeGame()
-                    flag = true),
-                  0)
+          TicTacToe.initializeGame()
 
     waitsFor((-> flag),
              "Should call initialize game.", 1000)
@@ -290,14 +295,15 @@ describe "initializeGame", ->
       expect(TicTacToe.buttonsEnabled).toBe(true)
 
   it "should initialize game when moving second", ->
-    spyOn($, "ajax").andCallFake(
-      (params) -> params.success({"boardState": "O________", "aiMove": 0, "result": null}))
     flag = false
+    spyOn($, "ajax").andCallFake(
+      (params) ->
+        setTimeout(( ->
+          params.success({"boardState": "O________", "aiMove": 0, "result": null})
+          flag = true)
+          0))
     runs ->
-      setTimeout((->
-                    TicTacToe.initializeGame()
-                    flag = true),
-                  0)
+          TicTacToe.initializeGame()
 
     waitsFor((-> flag),
              "Should call initialize game.", 1000)

@@ -166,19 +166,19 @@
     });
     it("should send an asynchronous POST request to /game", function() {
       var flag;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return params.success({
-          "boardState": "X___O____",
-          "aiMove": 4,
-          "result": null
-        });
-      });
       flag = false;
-      runs(function() {
+      spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
-          TicTacToe.makeMove("X", "_________", 0);
+          params.success({
+            "boardState": "X___O____",
+            "aiMove": 4,
+            "result": null
+          });
           return flag = true;
         }), 0);
+      });
+      runs(function() {
+        return TicTacToe.makeMove("X", "_________", 0);
       });
       waitsFor((function() {
         return flag;
@@ -198,19 +198,19 @@
     });
     it("show 'Tie'/form and disabled buttons for tie", function() {
       var flag;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return params.success({
-          "boardState": "XOXXOOOXX",
-          "aiMove": -1,
-          "result": "T"
-        });
-      });
       flag = false;
-      runs(function() {
+      spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
-          TicTacToe.makeMove("X", "XOXXOOOX_", 8);
+          params.success({
+            "boardState": "XOXXOOOXX",
+            "aiMove": -1,
+            "result": "T"
+          });
           return flag = true;
         }), 0);
+      });
+      runs(function() {
+        return TicTacToe.makeMove("X", "XOXXOOOX_", 0);
       });
       waitsFor((function() {
         return flag;
@@ -224,19 +224,19 @@
     });
     it("show 'Tie'/form and disabled buttons for tie after AI move", function() {
       var flag;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return params.success({
-          "boardState": "OXOOXXXOO",
-          "aiMove": 8,
-          "result": "T"
-        });
-      });
       flag = false;
-      runs(function() {
+      spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
-          TicTacToe.makeMove("X", "OXOOXX_O_", 6);
+          params.success({
+            "boardState": "OXOOXXXOO",
+            "aiMove": 8,
+            "result": "T"
+          });
           return flag = true;
         }), 0);
+      });
+      runs(function() {
+        return TicTacToe.makeMove("X", "OXOOXX_O_", 6);
       });
       waitsFor((function() {
         return flag;
@@ -250,19 +250,19 @@
     });
     it("show 'Win'/form and disabled buttons for player win", function() {
       var flag;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return params.success({
-          "boardState": "X_OOO_XXX",
-          "aiMove": -1,
-          "result": "W"
-        });
-      });
       flag = false;
-      runs(function() {
+      spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
-          TicTacToe.makeMove("X", "X_OOO_X_X", 7);
+          params.success({
+            "boardState": "X_OOO_XXX",
+            "aiMove": -1,
+            "result": "W"
+          });
           return flag = true;
         }), 0);
+      });
+      runs(function() {
+        return TicTacToe.makeMove("X", "X_OOO_X_X", 7);
       });
       waitsFor((function() {
         return flag;
@@ -276,19 +276,19 @@
     });
     it("show 'Lose'/form and disabled buttons for player loss", function() {
       var flag;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return params.success({
-          "boardState": "OXXOO_O_X",
-          "aiMove": 3,
-          "result": "L"
-        });
-      });
       flag = false;
-      runs(function() {
+      spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
-          TicTacToe.makeMove("X", "OX__O_O_X", 2);
+          params.success({
+            "boardState": "OXXOO_O_X",
+            "aiMove": 3,
+            "result": "L"
+          });
           return flag = true;
         }), 0);
+      });
+      runs(function() {
+        return TicTacToe.makeMove("X", "OX__O_O_X", 2);
       });
       waitsFor((function() {
         return flag;
@@ -302,20 +302,19 @@
     });
     return it("should disable buttons while waiting for server, enable buttons when move is returned", function() {
       var flag;
-      spyOn($, "ajax").andCallFake(function(params) {
-        expect(TicTacToe.buttonsEnabled).toBe(false);
-        return params.success({
-          "boardState": "X___O____",
-          "aiMove": 4,
-          "result": null
-        });
-      });
       flag = false;
-      runs(function() {
+      spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
-          TicTacToe.makeMove("X", "_________", 0);
+          params.success({
+            "boardState": "X___O____",
+            "aiMove": 4,
+            "result": null
+          });
           return flag = true;
-        }), 5);
+        }), 0);
+      });
+      runs(function() {
+        return TicTacToe.makeMove("X", "_________", 0);
       });
       waitsFor((function() {
         return flag;
@@ -337,19 +336,19 @@
     });
     it("should send an asynchronous POST request to / and initialize game", function() {
       var flag;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return params.success({
-          "boardState": "_________",
-          "aiMove": -1,
-          "result": null
-        });
-      });
       flag = false;
-      runs(function() {
+      spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
-          TicTacToe.initializeGame();
+          params.success({
+            "boardState": "_________",
+            "aiMove": -1,
+            "result": null
+          });
           return flag = true;
         }), 0);
+      });
+      runs(function() {
+        return TicTacToe.initializeGame();
       });
       waitsFor((function() {
         return flag;
@@ -367,19 +366,19 @@
     });
     return it("should initialize game when moving second", function() {
       var flag;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return params.success({
-          "boardState": "O________",
-          "aiMove": 0,
-          "result": null
-        });
-      });
       flag = false;
-      runs(function() {
+      spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
-          TicTacToe.initializeGame();
+          params.success({
+            "boardState": "O________",
+            "aiMove": 0,
+            "result": null
+          });
           return flag = true;
         }), 0);
+      });
+      runs(function() {
+        return TicTacToe.initializeGame();
       });
       waitsFor((function() {
         return flag;
