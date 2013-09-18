@@ -41,21 +41,6 @@
                                            :aiMove ai-move
                                            :result nil}))))
 
-(defn new-game-form []
-  (str "<form action=\"\" onsubmit=\"TicTacToe.initializeGame(); return false;\">"
-    "<div>"
-    "Marker:"
-      "<input type=\"radio\" name=\"marker\" value=\"X\" checked> X"
-      "<input type=\"radio\" name=\"marker\"   value=\"O\"> O"
-    "</div>"
-    "<div>"
-    "Move:"
-      "<input type=\"radio\" name=\"move\" value=\"0\" checked> First"
-      "<input type=\"radio\" name=\"move\" value=\"1\"> Second"
-    "</div>"
-    "<input type=\"submit\" value=\"Play!\">"
-  "</form>"))
-
 (defn result [marker board_state]
   (let [player (if (= marker "X") BoardMarker/X
                                   BoardMarker/O)
@@ -94,7 +79,6 @@
          "<script src=\"/javascripts/jquery-1.10.2.min.js\"></script>"
          "<script src=\"/javascripts/TicTacToe.js\"></script>"
          "</head><body><div id=\"board\"></div>"
-         (new-game-form)
          "</body></html>")]
     (response-from-string response)))
 

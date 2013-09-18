@@ -110,14 +110,6 @@
                (json/read-str body :key-fn keyword))))
 )
 
-(describe "new-game-form"
-  (it "is a form, points to initializeGame"
-    (should 
-      (re-matches 
-        #"<form[\s\S]*onsubmit=\"TicTacToe\.initializeGame[\s\S]*</form>"
-        (new-game-form))))
-)
-
 (describe "result"
   (it "should return nil for unfinished game"
     (should= nil (result "X" "O___X____")))
@@ -149,17 +141,7 @@
           body (stream-to-string stream)]
             (should 
               (re-matches 
-                #"[\s\S]*<div id=\"board\">[\s\S]*"
-                body))
-            (should= 200 (second response))))
-
-  (it "should have the form below the #board div"
-    (let [response (initialize-page)
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
-            (should 
-              (re-matches 
-                #"[\s\S]*<div id=\"board\"></div><form[\s\S]*"
+                #"[\s\S]*<div id=\"board\"></div>[\s\S]*"
                 body))
             (should= 200 (second response))))
 )
