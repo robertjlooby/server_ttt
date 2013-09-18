@@ -29,9 +29,6 @@
     getNewBoardState: function(marker, boardState, cellNum) {
       return "" + (boardState.slice(0, cellNum)) + marker + (boardState.slice(cellNum + 1));
     },
-    setUpBoard: function(marker) {
-      return TicTacToe.resetBoard(marker);
-    },
     updateBoardHuman: function(marker, boardState, move) {
       TicTacToe.disableButtons();
       TicTacToe.display.makeMove(marker, move);
@@ -77,7 +74,7 @@
       var aiMarker, marker, move;
       marker = TicTacToe.display.getMarker();
       move = TicTacToe.display.getMove();
-      TicTacToe.setUpBoard(marker);
+      TicTacToe.resetBoard(marker);
       aiMarker = marker === "X" ? "O" : "X";
       return $.ajax({
         data: {

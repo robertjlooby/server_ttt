@@ -68,19 +68,6 @@ describe "TicTacToe.getNewBoardState", ->
   it "should replace an element at the end", ->
     expect(TicTacToe.getNewBoardState("X", "X_OX__O__", 8)).toBe("X_OX__O_X")
 
-describe "TicTacToe.setUpBoard", ->
-  beforeEach ->
-    affix("#board").affix("#newGameForm")
-
-  it "should remove the form", ->
-    TicTacToe.setUpBoard("X")
-    expect($("#newGameForm").size()).toBe(0)
-
-  it "should reset the board", ->
-    TicTacToe.setUpBoard("X")
-    expect($(".button").size()).toBe(9)
-    expect(TicTacToe.boardState).toBe("_________")
-
 describe "TicTacToe.updateBoardHuman", ->
   beforeEach ->
     board = affix("#board")

@@ -21,9 +21,6 @@ TicTacToe =
   getNewBoardState: (marker, boardState, cellNum) ->
     "#{boardState.slice(0, cellNum)}#{marker}#{boardState.slice(cellNum + 1)}"
 
-  setUpBoard: (marker) ->
-    TicTacToe.resetBoard(marker)
-
   updateBoardHuman: (marker, boardState, move) ->
     TicTacToe.disableButtons()
     TicTacToe.display.makeMove(marker, move)
@@ -62,7 +59,7 @@ TicTacToe =
   initializeGame: ->
     marker = TicTacToe.display.getMarker()
     move = TicTacToe.display.getMove()
-    TicTacToe.setUpBoard marker
+    TicTacToe.resetBoard marker
     aiMarker = if (marker == "X") then "O" else "X"
     $.ajax({data:
               marker: marker

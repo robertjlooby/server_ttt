@@ -82,21 +82,6 @@
     });
   });
 
-  describe("TicTacToe.setUpBoard", function() {
-    beforeEach(function() {
-      return affix("#board").affix("#newGameForm");
-    });
-    it("should remove the form", function() {
-      TicTacToe.setUpBoard("X");
-      return expect($("#newGameForm").size()).toBe(0);
-    });
-    return it("should reset the board", function() {
-      TicTacToe.setUpBoard("X");
-      expect($(".button").size()).toBe(9);
-      return expect(TicTacToe.boardState).toBe("_________");
-    });
-  });
-
   describe("TicTacToe.updateBoardHuman", function() {
     beforeEach(function() {
       var board;
