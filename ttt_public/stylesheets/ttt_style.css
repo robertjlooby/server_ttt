@@ -30,7 +30,7 @@ div[id^="row"]
   clear:both;
 }
 
-form
+div#newGameForm
 {
   clear:both;
 }
