@@ -88,10 +88,12 @@ describe "TicTacToe.setUpBoard", ->
 
 describe "TicTacToe.updateBoardHuman", ->
   beforeEach ->
-    affix("#board")
-    TicTacToe.resetBoard "X"
+    board = affix("#board")
+    board.affix("#cell0")
   
   it "should make the human move in a given cell", ->
+    spyOn(TicTacToe.display, "makeMove").andCallFake(
+      (marker, cellNum) -> $("#cell#{cellNum}").html(marker))
     TicTacToe.updateBoardHuman "X", "_________", 0
     expect($("#cell0").html()).toBe("X")
 
@@ -105,10 +107,13 @@ describe "TicTacToe.updateBoardHuman", ->
 
 describe "TicTacToe.updateBoardAI", ->
   beforeEach ->
-    affix("#board")
-    TicTacToe.resetBoard "X"
+    board = affix("#board")
+    board.affix("#cell4")
+    TicTacToe.buttonsEnabled = false
 
   it "should make the aiMove in the given cell", ->
+    spyOn(TicTacToe.display, "makeMove").andCallFake(
+      (marker, cellNum) -> $("#cell#{cellNum}").html(marker))
     TicTacToe.updateBoardAI "O", "X___O____", 4, null
     expect($("#cell4").html()).toBe("O")
 

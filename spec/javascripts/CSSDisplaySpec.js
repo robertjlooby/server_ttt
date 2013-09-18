@@ -55,6 +55,21 @@
     });
   });
 
+  describe("CSSDisplay.makeMove", function() {
+    beforeEach(function() {
+      var board;
+      board = affix("#board");
+      board.affix("#cell0").html("empty cell");
+      return board.affix("#cell5").html("empty cell");
+    });
+    return it("should replace cell contents with marker", function() {
+      CSSDisplay.makeMove("X", 0);
+      CSSDisplay.makeMove("O", 5);
+      expect($("#cell0").html()).toBe("X");
+      return expect($("#cell5").html()).toBe("O");
+    });
+  });
+
   describe("CSSDisplay.getMarker", function() {
     var o, x;
     x = o = null;

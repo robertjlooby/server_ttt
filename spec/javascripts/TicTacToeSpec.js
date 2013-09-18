@@ -112,10 +112,14 @@
 
   describe("TicTacToe.updateBoardHuman", function() {
     beforeEach(function() {
-      affix("#board");
-      return TicTacToe.resetBoard("X");
+      var board;
+      board = affix("#board");
+      return board.affix("#cell0");
     });
     it("should make the human move in a given cell", function() {
+      spyOn(TicTacToe.display, "makeMove").andCallFake(function(marker, cellNum) {
+        return $("#cell" + cellNum).html(marker);
+      });
       TicTacToe.updateBoardHuman("X", "_________", 0);
       return expect($("#cell0").html()).toBe("X");
     });
@@ -131,10 +135,15 @@
 
   describe("TicTacToe.updateBoardAI", function() {
     beforeEach(function() {
-      affix("#board");
-      return TicTacToe.resetBoard("X");
+      var board;
+      board = affix("#board");
+      board.affix("#cell4");
+      return TicTacToe.buttonsEnabled = false;
     });
     it("should make the aiMove in the given cell", function() {
+      spyOn(TicTacToe.display, "makeMove").andCallFake(function(marker, cellNum) {
+        return $("#cell" + cellNum).html(marker);
+      });
       TicTacToe.updateBoardAI("O", "X___O____", 4, null);
       return expect($("#cell4").html()).toBe("O");
     });

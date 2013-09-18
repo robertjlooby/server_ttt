@@ -44,6 +44,18 @@ describe "CSSDisplay.getButton", ->
     expect(CSSDisplay.getButton(-1).size()).toBe(0)
     expect(CSSDisplay.getButton(9).size()).toBe(0)
 
+describe "CSSDisplay.makeMove", ->
+  beforeEach ->
+    board = affix("#board")
+    board.affix("#cell0").html("empty cell")
+    board.affix("#cell5").html("empty cell")
+
+  it "should replace cell contents with marker", ->
+    CSSDisplay.makeMove("X", 0)
+    CSSDisplay.makeMove("O", 5)
+    expect($("#cell0").html()).toBe("X")
+    expect($("#cell5").html()).toBe("O")
+
 describe "CSSDisplay.getMarker", ->
   x = o = null
 

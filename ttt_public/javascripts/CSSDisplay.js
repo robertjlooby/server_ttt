@@ -28,6 +28,9 @@
     getButton: function(cellNum) {
       return $("#cell" + cellNum + " .button");
     },
+    makeMove: function(marker, cellNum) {
+      return $("#cell" + cellNum).html(marker);
+    },
     getMarker: function() {
       return $("input[name='marker']:checked").val();
     },

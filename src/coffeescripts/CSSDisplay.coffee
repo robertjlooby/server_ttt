@@ -34,6 +34,9 @@ CSSDisplay =
   getButton: (cellNum) ->
     $("#cell#{cellNum} .button")
 
+  makeMove: (marker, cellNum) ->
+    $("#cell#{cellNum}").html(marker)
+
   getMarker: ->
     $("input[name='marker']:checked").val()
 

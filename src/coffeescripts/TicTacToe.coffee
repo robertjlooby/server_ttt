@@ -30,11 +30,11 @@ TicTacToe =
 
   updateBoardHuman: (marker, boardState, move) ->
     TicTacToe.disableButtons()
-    TicTacToe.display.getCell(move).html(marker)
+    TicTacToe.display.makeMove(marker, move)
     TicTacToe.boardState = boardState
 
   updateBoardAI: (aiMarker, boardState, aiMove, result) ->
-    TicTacToe.display.getCell(aiMove).html(aiMarker)
+    TicTacToe.display.makeMove(aiMarker, aiMove)
     TicTacToe.boardState = boardState
     switch result
       when "W"

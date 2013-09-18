@@ -44,11 +44,11 @@
     },
     updateBoardHuman: function(marker, boardState, move) {
       TicTacToe.disableButtons();
-      TicTacToe.display.getCell(move).html(marker);
+      TicTacToe.display.makeMove(marker, move);
       return TicTacToe.boardState = boardState;
     },
     updateBoardAI: function(aiMarker, boardState, aiMove, result) {
-      TicTacToe.display.getCell(aiMove).html(aiMarker);
+      TicTacToe.display.makeMove(aiMarker, aiMove);
       TicTacToe.boardState = boardState;
       switch (result) {
         case "W":
