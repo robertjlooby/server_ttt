@@ -77,6 +77,7 @@
          "<html><head>"
          "<link rel=\"stylesheet\" type=\"text/css\" href=\"/stylesheets/ttt_style.css\">"
          "<script src=\"/javascripts/jquery-1.10.2.min.js\"></script>"
+         "<script src=\"/javascripts/CSSDisplay.js\"></script>"
          "<script src=\"/javascripts/TicTacToe.js\"></script>"
          "</head><body><div id=\"board\"></div>"
          "</body></html>")]
