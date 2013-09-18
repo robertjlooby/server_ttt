@@ -1,12 +1,109 @@
-describe "resetBoard", ->
+describe "CSSDisplay.resetBoard", ->
   beforeEach ->
-    affix("#board")
+    board = affix("#board")
+    board.affix("#newGameForm").html("a form")
 
   it "should reset the contents of #board", ->
-    TicTacToe.resetBoard "X"
+    CSSDisplay.resetBoard "X"
     expect($("div#board").html()).toMatch("class=\"button\">0<")
     expect($("div#board").html()).toMatch("<div id=\"row2\">")
     expect($("div#board").html()).toMatch("<div id=\"cell8\">")
+
+  it "should remove form", ->
+    expect($("#newGameForm").html()).toBe("a form")
+    CSSDisplay.resetBoard "X"
+    expect($("#newGameForm").size()).toBe(0)
+
+describe "CSSDisplay.getCell", ->
+  beforeEach ->
+    board = affix("#board")
+    board.affix("#cell0").html("0")
+    board.affix("#cell1").html("1")
+    board.affix("#cell2").html("2")
+
+  it "should get the given cell by number", ->
+    expect(CSSDisplay.getCell(0).html()).toBe("0")
+    expect(CSSDisplay.getCell(2).html()).toBe("2")
+
+  it "should return an empty element set for a nonexistent cell", ->
+    expect(CSSDisplay.getCell(-1).size()).toBe(0)
+    expect(CSSDisplay.getCell(9).size()).toBe(0)
+
+describe "CSSDisplay.getButton", ->
+  beforeEach ->
+    board = affix("#board")
+    board.affix("#cell0").affix(".button").html("0")
+    board.affix("#cell1").affix(".button").html("1")
+    board.affix("#cell2").affix(".button").html("2")
+
+  it "should get the given cell by number", ->
+    expect(CSSDisplay.getButton(0).html()).toBe("0")
+    expect(CSSDisplay.getButton(2).html()).toBe("2")
+
+  it "should return an empty element set for a nonexistent cell", ->
+    expect(CSSDisplay.getButton(-1).size()).toBe(0)
+    expect(CSSDisplay.getButton(9).size()).toBe(0)
+
+describe "CSSDisplay.getMarker", ->
+  x = o = null
+
+  beforeEach ->
+    form = affix("#newGameForm")
+    x = form.affix('input[name="marker"][type="radio"][value="X"]')
+    o = form.affix('input[name="marker"][type="radio"][value="O"]')
+
+  it "should return the marker value from the form", ->
+    x.prop("checked", true)
+    expect(CSSDisplay.getMarker()).toBe("X")
+    o.prop("checked", true)
+    expect(CSSDisplay.getMarker()).toBe("O")
+
+describe "CSSDisplay.getMove", ->
+  m0 = m1 = null
+
+  beforeEach ->
+    form = affix("#newGameForm")
+    m0 = form.affix('input[name="move"][type="radio"][value="0"]')
+    m1 = form.affix('input[name="move"][type="radio"][value="1"]')
+
+  it "should return the move value from the form", ->
+    m0.prop("checked", true)
+    expect(CSSDisplay.getMove()).toBe("0")
+    m1.prop("checked", true)
+    expect(CSSDisplay.getMove()).toBe("1")
+
+describe "CSSDisplay end of game messages", ->
+  
+  beforeEach ->
+    affix("#board")
+
+  it "should display a win message", ->
+    CSSDisplay.displayWinMessage()
+    expect($("#board h1").html()).toMatch("Win")
+
+  it "should display a lose message", ->
+    CSSDisplay.displayLoseMessage()
+    expect($("#board h1").html()).toMatch("Lose")
+
+  it "should display a tie message", ->
+    CSSDisplay.displayTieMessage()
+    expect($("#board h1").html()).toMatch("Tie")
+
+describe "CSSDisplay.displayForm", ->
+
+  beforeEach ->
+    affix("#board")
+
+  it "should display the newGameForm with button", ->
+    CSSDisplay.displayForm()
+    expect($("#board #newGameForm #newGameButton").size()).toBe(1)
+
+  it "should return the newGameButton element", ->
+    expect(CSSDisplay.displayForm().attr("id")).toBe("newGameButton")
+  
+describe "TicTacToe.resetBoard", ->
+  beforeEach ->
+    affix("#board")
 
   it "should reset TicTacToe.boardState to an empty board", ->
     TicTacToe.boardState = "blahblah"
@@ -18,7 +115,23 @@ describe "resetBoard", ->
     TicTacToe.resetBoard "X"
     expect(TicTacToe.buttonsEnabled).toBe(false)
 
-describe "button clickability", ->
+  it "should attack a click event handler to each cell", ->
+    spyOn $.fn, "click"
+    TicTacToe.resetBoard "X"
+    expect($.fn.click.calls.length).toBe(9)
+
+describe "TicTacToe.displayForm", ->
+  beforeEach ->
+    affix("#newGameButton")
+
+  it "attaches a click handler to call initializeGame to the button returned by display.displayForm()", ->
+    spyOn(TicTacToe, "initializeGame")
+    spyOn(TicTacToe.display, "displayForm").andReturn($("#newGameButton"))
+    TicTacToe.displayForm()
+    $("#newGameButton").click()
+    expect(TicTacToe.initializeGame).toHaveBeenCalled()
+
+describe "TicTacToe.button clickability", ->
   beforeEach ->
     affix("#board")
     TicTacToe.resetBoard "X"
@@ -50,10 +163,10 @@ describe "button clickability", ->
       expect($("#board").html()).toBe(initialBoard)
     expect(TicTacToe.makeMove).not.toHaveBeenCalled()
 
-describe "getNewBoardState", ->
+describe "TicTacToe.getNewBoardState", ->
   it "should replace first element", ->
     expect(TicTacToe.getNewBoardState("X", "__O______", 0)).toBe("X_O______")
-describe "getNewBoardState", ->
+describe "TicTacToe.getNewBoardState", ->
   it "should replace first element", ->
     expect(TicTacToe.getNewBoardState("X", "__O______", 0)).toBe("X_O______")
 
@@ -63,21 +176,20 @@ describe "getNewBoardState", ->
   it "should replace an element at the end", ->
     expect(TicTacToe.getNewBoardState("X", "X_OX__O__", 8)).toBe("X_OX__O_X")
 
-describe "setUpBoard", ->
+describe "TicTacToe.setUpBoard", ->
   beforeEach ->
-    affix("form")
-    affix("#board")
+    affix("#board").affix("#newGameForm")
 
-  it "should hide the form", ->
+  it "should remove the form", ->
     TicTacToe.setUpBoard("X")
-    expect($("form").css("display")).toBe("none")
+    expect($("#newGameForm").size()).toBe(0)
 
   it "should reset the board", ->
     TicTacToe.setUpBoard("X")
     expect($(".button").size()).toBe(9)
     expect(TicTacToe.boardState).toBe("_________")
 
-describe "updateBoardHuman", ->
+describe "TicTacToe.updateBoardHuman", ->
   beforeEach ->
     affix("#board")
     TicTacToe.resetBoard "X"
@@ -94,10 +206,8 @@ describe "updateBoardHuman", ->
     TicTacToe.updateBoardHuman "X", "X________", 0
     expect(TicTacToe.boardState).toBe("X________")
 
-describe "updateBoardAI", ->
+describe "TicTacToe.updateBoardAI", ->
   beforeEach ->
-    affix("form")
-    $("form").hide()
     affix("#board")
     TicTacToe.resetBoard "X"
 
@@ -116,27 +226,26 @@ describe "updateBoardAI", ->
   it "should display win message and form when player wins, buttons should be disabled", ->
     TicTacToe.updateBoardAI "O", "X_OOX_XOX", 7, "W"
     expect($("h1").html()).toMatch("Win")
-    expect($("form").css("display")).toBe("block")
+    expect($("#board #newGameForm").size()).toBe(1)
     expect(TicTacToe.buttonsEnabled).toBe(false)
 
   it "should display lose message and form when player loses, buttons should be disabled", ->
     TicTacToe.updateBoardAI "X", "X_OOX_XOX", 8, "L"
     expect($("h1").html()).toMatch("Lose")
-    expect($("form").css("display")).toBe("block")
+    expect($("#board #newGameForm").size()).toBe(1)
     expect(TicTacToe.buttonsEnabled).toBe(false)
 
   it "should display tie message and form when player ties, buttons should be disabled", ->
     TicTacToe.updateBoardAI "X", "XOXOOXXXO", 5, "T"
     expect($("h1").html()).toMatch("Tie")
-    expect($("form").css("display")).toBe("block")
+    expect($("#board #newGameForm").size()).toBe(1)
     expect(TicTacToe.buttonsEnabled).toBe(false)
 
-describe "makeMove", ->
+describe "TicTacToe.makeMove", ->
   beforeEach ->
     affix("#board")
     TicTacToe.resetBoard("X")
     TicTacToe.enableButtons()
-    affix("form").hide()
 
   it "should send an asynchronous POST request to /game", ->
     flag = false
@@ -156,7 +265,7 @@ describe "makeMove", ->
       expect($.ajax.mostRecentCall.args[0].dataType).toBe("json")
       expect($.ajax.mostRecentCall.args[0].type).toBe("POST")
       expect($.ajax.mostRecentCall.args[0].url).toBe("/game")
-      expect($("form").css("display")).toBe("none")
+      expect($("#board #newGameForm").size()).toBe(0)
       expect($("#cell0").html()).toBe("X")
       expect($("#cell4").html()).toBe("O")
       expect(TicTacToe.boardState).toBe("X___O____")
@@ -178,7 +287,7 @@ describe "makeMove", ->
 
     runs ->
       expect($("h1").html()).toMatch("Tie")
-      expect($("form").css("display")).toBe("block")
+      expect($("#board #newGameForm").size()).toBe(1)
       expect(TicTacToe.boardState).toBe("XOXXOOOXX")
       expect(TicTacToe.buttonsEnabled).toBe(false)
       
@@ -198,7 +307,7 @@ describe "makeMove", ->
 
     runs ->
       expect($("h1").html()).toMatch("Tie")
-      expect($("form").css("display")).toBe("block")
+      expect($("#board #newGameForm").size()).toBe(1)
       expect(TicTacToe.boardState).toBe("OXOOXXXOO")
       expect(TicTacToe.buttonsEnabled).toBe(false)
 
@@ -218,7 +327,7 @@ describe "makeMove", ->
 
     runs ->
       expect($("h1").html()).toMatch("Win")
-      expect($("form").css("display")).toBe("block")
+      expect($("#board #newGameForm").size()).toBe(1)
       expect(TicTacToe.boardState).toBe("X_OOO_XXX")
       expect(TicTacToe.buttonsEnabled).toBe(false)
 
@@ -238,7 +347,7 @@ describe "makeMove", ->
 
     runs ->
       expect($("h1").html()).toMatch("Lose")
-      expect($("form").css("display")).toBe("block")
+      expect($("#board #newGameForm").size()).toBe(1)
       expect(TicTacToe.boardState).toBe("OXXOO_O_X")
       expect(TicTacToe.buttonsEnabled).toBe(false)
 
@@ -263,7 +372,7 @@ describe "makeMove", ->
     TicTacToe.makeMove("X", "_________", 0)
     expect(TicTacToe.buttonsEnabled).toBe(false)
 
-describe "initializeGame", ->
+describe "TicTacToe.initializeGame", ->
   beforeEach ->
     form = affix("form")
     form.affix('input[name="marker"][type="radio"][value="X"]').prop("checked", true)
@@ -288,7 +397,7 @@ describe "initializeGame", ->
       expect($.ajax.mostRecentCall.args[0].dataType).toBe("json")
       expect($.ajax.mostRecentCall.args[0].type).toBe("POST")
       expect($.ajax.mostRecentCall.args[0].url).toBe("/")
-      expect($("form").css("display")).toBe("none")
+      expect($("#board #newGameForm").size()).toBe(0)
       expect(TicTacToe.boardState).toBe("_________")
       expect(TicTacToe.buttonsEnabled).toBe(true)
 
