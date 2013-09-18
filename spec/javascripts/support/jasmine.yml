@@ -12,6 +12,8 @@
 #
 src_files:
     - 'javascripts/jquery-1.10.2.min.js'
+    - 'javascripts/CSSDisplay.js'
+    - 'javascripts/TicTacToe.js'
     - 'javascripts/**/*.js'
 
 # stylesheets
