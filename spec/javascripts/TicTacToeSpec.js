@@ -84,16 +84,11 @@
 
   describe("TicTacToe.updateBoardHuman", function() {
     beforeEach(function() {
-      var board;
-      board = affix("#board");
-      return board.affix("#cell0");
+      return spyOn(TicTacToe.display, "makeMove");
     });
-    it("should make the human move in a given cell", function() {
-      spyOn(TicTacToe.display, "makeMove").andCallFake(function(marker, cellNum) {
-        return $("#cell" + cellNum).html(marker);
-      });
+    it("should call display.makeMove with the given marker/cell", function() {
       TicTacToe.updateBoardHuman("X", "_________", 0);
-      return expect($("#cell0").html()).toBe("X");
+      return expect(TicTacToe.display.makeMove).toHaveBeenCalledWith("X", 0);
     });
     it("should disable buttons", function() {
       TicTacToe.updateBoardHuman("X", "_________", 0);
@@ -107,17 +102,16 @@
 
   describe("TicTacToe.updateBoardAI", function() {
     beforeEach(function() {
-      var board;
-      board = affix("#board");
-      board.affix("#cell4");
-      return TicTacToe.buttonsEnabled = false;
+      TicTacToe.buttonsEnabled = false;
+      spyOn(TicTacToe.display, "displayWinMessage");
+      spyOn(TicTacToe.display, "displayLoseMessage");
+      spyOn(TicTacToe.display, "displayTieMessage");
+      spyOn(TicTacToe.display, "makeMove");
+      return spyOn(TicTacToe, "displayForm");
     });
-    it("should make the aiMove in the given cell", function() {
-      spyOn(TicTacToe.display, "makeMove").andCallFake(function(marker, cellNum) {
-        return $("#cell" + cellNum).html(marker);
-      });
+    it("should call display.makeMove with the given marker/cell", function() {
       TicTacToe.updateBoardAI("O", "X___O____", 4, null);
-      return expect($("#cell4").html()).toBe("O");
+      return expect(TicTacToe.display.makeMove).toHaveBeenCalledWith("O", 4);
     });
     it("should update the boardState", function() {
       TicTacToe.updateBoardAI("O", "X___O____", 4, null);
@@ -129,33 +123,30 @@
     });
     it("should display win message and form when player wins, buttons should be disabled", function() {
       TicTacToe.updateBoardAI("O", "X_OOX_XOX", 7, "W");
-      expect($("h1").html()).toMatch("Win");
-      expect($("#board #newGameForm").size()).toBe(1);
+      expect(TicTacToe.display.displayWinMessage).toHaveBeenCalled();
+      expect(TicTacToe.displayForm).toHaveBeenCalled();
       return expect(TicTacToe.buttonsEnabled).toBe(false);
     });
     it("should display lose message and form when player loses, buttons should be disabled", function() {
       TicTacToe.updateBoardAI("X", "X_OOX_XOX", 8, "L");
-      expect($("h1").html()).toMatch("Lose");
-      expect($("#board #newGameForm").size()).toBe(1);
+      expect(TicTacToe.display.displayLoseMessage).toHaveBeenCalled();
+      expect(TicTacToe.displayForm).toHaveBeenCalled();
       return expect(TicTacToe.buttonsEnabled).toBe(false);
     });
     return it("should display tie message and form when player ties, buttons should be disabled", function() {
       TicTacToe.updateBoardAI("X", "XOXOOXXXO", 5, "T");
-      expect($("h1").html()).toMatch("Tie");
-      expect($("#board #newGameForm").size()).toBe(1);
+      expect(TicTacToe.display.displayTieMessage).toHaveBeenCalled();
+      expect(TicTacToe.displayForm).toHaveBeenCalled();
       return expect(TicTacToe.buttonsEnabled).toBe(false);
     });
   });
 
   describe("TicTacToe.makeMove", function() {
-    beforeEach(function() {
-      affix("#board");
-      TicTacToe.resetBoard("X");
-      return TicTacToe.enableButtons();
-    });
     it("should send an asynchronous POST request to /game", function() {
       var flag;
       flag = false;
+      spyOn(TicTacToe, "updateBoardHuman");
+      spyOn(TicTacToe, "updateBoardAI");
       spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
           params.success({
@@ -175,113 +166,16 @@
         expect($.ajax.mostRecentCall.args[0].dataType).toBe("json");
         expect($.ajax.mostRecentCall.args[0].type).toBe("POST");
         expect($.ajax.mostRecentCall.args[0].url).toBe("/game");
-        expect($("#board #newGameForm").size()).toBe(0);
-        expect($("#cell0").html()).toBe("X");
-        expect($("#cell4").html()).toBe("O");
-        expect(TicTacToe.boardState).toBe("X___O____");
-        return expect(TicTacToe.buttonsEnabled).toBe(true);
+        expect(TicTacToe.updateBoardHuman).toHaveBeenCalledWith("X", "X________", 0);
+        return expect(TicTacToe.updateBoardAI).toHaveBeenCalledWith("O", "X___O____", 4, null);
       });
       return TicTacToe.makeMove("X", "_________", 0);
-    });
-    it("show 'Tie'/form and disabled buttons for tie", function() {
-      var flag;
-      flag = false;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return setTimeout((function() {
-          params.success({
-            "boardState": "XOXXOOOXX",
-            "aiMove": -1,
-            "result": "T"
-          });
-          return flag = true;
-        }), 0);
-      });
-      waitsFor((function() {
-        return flag;
-      }), "Should call makeMove.", 1000);
-      runs(function() {
-        expect($("h1").html()).toMatch("Tie");
-        expect($("#board #newGameForm").size()).toBe(1);
-        expect(TicTacToe.boardState).toBe("XOXXOOOXX");
-        return expect(TicTacToe.buttonsEnabled).toBe(false);
-      });
-      return TicTacToe.makeMove("X", "XOXXOOOX_", 0);
-    });
-    it("show 'Tie'/form and disabled buttons for tie after AI move", function() {
-      var flag;
-      flag = false;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return setTimeout((function() {
-          params.success({
-            "boardState": "OXOOXXXOO",
-            "aiMove": 8,
-            "result": "T"
-          });
-          return flag = true;
-        }), 0);
-      });
-      waitsFor((function() {
-        return flag;
-      }), "Should call makeMove.", 1000);
-      runs(function() {
-        expect($("h1").html()).toMatch("Tie");
-        expect($("#board #newGameForm").size()).toBe(1);
-        expect(TicTacToe.boardState).toBe("OXOOXXXOO");
-        return expect(TicTacToe.buttonsEnabled).toBe(false);
-      });
-      return TicTacToe.makeMove("X", "OXOOXX_O_", 6);
-    });
-    it("show 'Win'/form and disabled buttons for player win", function() {
-      var flag;
-      flag = false;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return setTimeout((function() {
-          params.success({
-            "boardState": "X_OOO_XXX",
-            "aiMove": -1,
-            "result": "W"
-          });
-          return flag = true;
-        }), 0);
-      });
-      waitsFor((function() {
-        return flag;
-      }), "Should call makeMove.", 1000);
-      runs(function() {
-        expect($("h1").html()).toMatch("Win");
-        expect($("#board #newGameForm").size()).toBe(1);
-        expect(TicTacToe.boardState).toBe("X_OOO_XXX");
-        return expect(TicTacToe.buttonsEnabled).toBe(false);
-      });
-      return TicTacToe.makeMove("X", "X_OOO_X_X", 7);
-    });
-    it("show 'Lose'/form and disabled buttons for player loss", function() {
-      var flag;
-      flag = false;
-      spyOn($, "ajax").andCallFake(function(params) {
-        return setTimeout((function() {
-          params.success({
-            "boardState": "OXXOO_O_X",
-            "aiMove": 3,
-            "result": "L"
-          });
-          return flag = true;
-        }), 0);
-      });
-      waitsFor((function() {
-        return flag;
-      }), "Should call makeMove.", 1000);
-      runs(function() {
-        expect($("h1").html()).toMatch("Lose");
-        expect($("#board #newGameForm").size()).toBe(1);
-        expect(TicTacToe.boardState).toBe("OXXOO_O_X");
-        return expect(TicTacToe.buttonsEnabled).toBe(false);
-      });
-      return TicTacToe.makeMove("X", "OX__O_O_X", 2);
     });
     return it("should disable buttons while waiting for server, enable buttons when move is returned", function() {
       var flag;
       flag = false;
+      TicTacToe.buttonsEnabled = true;
+      spyOn(TicTacToe.display, "makeMove");
       spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
           params.success({
@@ -306,11 +200,10 @@
 
   describe("TicTacToe.initializeGame", function() {
     beforeEach(function() {
-      var form;
-      form = affix("form");
-      form.affix('input[name="marker"][type="radio"][value="X"]').prop("checked", true);
-      form.affix('input[name="move"][type="radio"][value="0"]').prop("checked", true);
-      return affix("#board");
+      spyOn(TicTacToe, "resetBoard");
+      spyOn(TicTacToe, "updateBoardAI");
+      spyOn(TicTacToe.display, "getMarker").andReturn("X");
+      return spyOn(TicTacToe.display, "getMove").andReturn("0");
     });
     it("should send an asynchronous POST request to / and initialize game", function() {
       var flag;
@@ -334,9 +227,8 @@
         expect($.ajax.mostRecentCall.args[0].dataType).toBe("json");
         expect($.ajax.mostRecentCall.args[0].type).toBe("POST");
         expect($.ajax.mostRecentCall.args[0].url).toBe("/");
-        expect($("#board #newGameForm").size()).toBe(0);
-        expect(TicTacToe.boardState).toBe("_________");
-        return expect(TicTacToe.buttonsEnabled).toBe(true);
+        expect(TicTacToe.resetBoard).toHaveBeenCalledWith("X");
+        return expect(TicTacToe.updateBoardAI).toHaveBeenCalledWith("O", "_________", -1, null);
       });
       return TicTacToe.initializeGame();
     });
@@ -357,8 +249,8 @@
         return flag;
       }), "Should call initialize game.", 1000);
       runs(function() {
-        expect(TicTacToe.boardState).toBe("O________");
-        return expect(TicTacToe.buttonsEnabled).toBe(true);
+        expect(TicTacToe.resetBoard).toHaveBeenCalledWith("X");
+        return expect(TicTacToe.updateBoardAI).toHaveBeenCalledWith("O", "O________", 0, null);
       });
       return TicTacToe.initializeGame();
     });
