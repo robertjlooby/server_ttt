@@ -1,5 +1,5 @@
 CSSDisplay =
-  resetBoard: (marker) ->
+  resetBoard: (fn) ->
     str = ""
     for row in [0..2]
       str += "<div id=\"row#{row}\">"
@@ -10,8 +10,11 @@ CSSDisplay =
                 </div>"
       str += "</div>"
     $("#board").html(str)
+    for cell in [0..8]
+      do (cell) ->
+        $("#cell#{cell}").click(-> fn(cell))
 
-  displayForm: ->
+  displayForm: (fn) ->
     str = "<div id=\"newGameForm\">
             <div>
               Marker:
@@ -26,7 +29,7 @@ CSSDisplay =
             <button type=\"button\" id=\"newGameButton\">Play!</button>
           </div>"
     $("#board").append(str)
-    $("#newGameButton")
+    $("#newGameButton").click(fn)
 
   getCell: (cellNum) ->
     $("#cell#{cellNum}")

@@ -12,10 +12,24 @@
       expect($("div#board").html()).toMatch("<div id=\"row2\">");
       return expect($("div#board").html()).toMatch("<div id=\"cell8\">");
     });
-    return it("should remove form", function() {
+    it("should remove form", function() {
       expect($("#newGameForm").html()).toBe("a form");
       CSSDisplay.resetBoard("X");
       return expect($("#newGameForm").size()).toBe(0);
+    });
+    return it("should attach the given event handler to each button", function() {
+      var cell, fn, _i, _j, _results;
+      fn = jasmine.createSpy("fn");
+      CSSDisplay.resetBoard(fn);
+      for (cell = _i = 0; _i <= 8; cell = ++_i) {
+        $("#cell" + cell).click();
+      }
+      expect(fn.calls.length).toBe(9);
+      _results = [];
+      for (cell = _j = 0; _j <= 8; cell = ++_j) {
+        _results.push(expect(fn).toHaveBeenCalledWith(cell));
+      }
+      return _results;
     });
   });
 
@@ -127,11 +141,18 @@
       return affix("#board");
     });
     it("should display the newGameForm with button", function() {
-      CSSDisplay.displayForm();
+      CSSDisplay.displayForm(function() {
+        return "fn called";
+      });
       return expect($("#board #newGameForm #newGameButton").size()).toBe(1);
     });
-    return it("should return the newGameButton element", function() {
-      return expect(CSSDisplay.displayForm().attr("id")).toBe("newGameButton");
+    return it("should attach the given fn to the newGameButton element", function() {
+      var fn;
+      fn = jasmine.createSpy("fn");
+      CSSDisplay.displayForm(fn);
+      expect(fn).not.toHaveBeenCalled();
+      $("#newGameButton").click();
+      return expect(fn).toHaveBeenCalled();
     });
   });
 

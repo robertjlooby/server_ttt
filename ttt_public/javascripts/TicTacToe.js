@@ -7,26 +7,16 @@
     buttonsEnabled: false,
     boardState: "_________",
     resetBoard: function(marker) {
-      var cell, _i, _results;
       TicTacToe.buttonsEnabled = false;
       TicTacToe.boardState = "_________";
-      TicTacToe.display.resetBoard(marker);
-      _results = [];
-      for (cell = _i = 0; _i <= 8; cell = ++_i) {
-        _results.push((function(cell) {
-          return TicTacToe.display.getButton(cell).click(function() {
-            if (TicTacToe.buttonsEnabled) {
-              return TicTacToe.makeMove(marker, TicTacToe.boardState, cell);
-            }
-          });
-        })(cell));
-      }
-      return _results;
+      return TicTacToe.display.resetBoard(function(cell) {
+        if (TicTacToe.buttonsEnabled) {
+          return TicTacToe.makeMove(marker, TicTacToe.boardState, cell);
+        }
+      });
     },
     displayForm: function() {
-      var button;
-      button = TicTacToe.display.displayForm();
-      return button.click(function() {
+      return TicTacToe.display.displayForm(function() {
         return TicTacToe.initializeGame();
       });
     },

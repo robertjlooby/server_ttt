@@ -14,6 +14,15 @@ describe "CSSDisplay.resetBoard", ->
     CSSDisplay.resetBoard "X"
     expect($("#newGameForm").size()).toBe(0)
 
+  it "should attach the given event handler to each button", ->
+    fn = jasmine.createSpy("fn")
+    CSSDisplay.resetBoard(fn)
+    for cell in [0..8]
+      $("#cell#{cell}").click()
+    expect(fn.calls.length).toBe(9)
+    for cell in [0..8]
+      expect(fn).toHaveBeenCalledWith(cell)
+
 describe "CSSDisplay.getCell", ->
   beforeEach ->
     board = affix("#board")
@@ -107,8 +116,12 @@ describe "CSSDisplay.displayForm", ->
     affix("#board")
 
   it "should display the newGameForm with button", ->
-    CSSDisplay.displayForm()
+    CSSDisplay.displayForm(-> "fn called")
     expect($("#board #newGameForm #newGameButton").size()).toBe(1)
 
-  it "should return the newGameButton element", ->
-    expect(CSSDisplay.displayForm().attr("id")).toBe("newGameButton")
+  it "should attach the given fn to the newGameButton element", ->
+    fn = jasmine.createSpy("fn")
+    CSSDisplay.displayForm(fn)
+    expect(fn).not.toHaveBeenCalled()
+    $("#newGameButton").click()
+    expect(fn).toHaveBeenCalled()

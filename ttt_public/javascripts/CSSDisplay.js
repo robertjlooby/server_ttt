@@ -3,8 +3,8 @@
   var CSSDisplay;
 
   CSSDisplay = {
-    resetBoard: function(marker) {
-      var cell, col, row, str, _i, _j;
+    resetBoard: function(fn) {
+      var cell, col, row, str, _i, _j, _k, _results;
       str = "";
       for (row = _i = 0; _i <= 2; row = ++_i) {
         str += "<div id=\"row" + row + "\">";
@@ -14,13 +14,22 @@
         }
         str += "</div>";
       }
-      return $("#board").html(str);
+      $("#board").html(str);
+      _results = [];
+      for (cell = _k = 0; _k <= 8; cell = ++_k) {
+        _results.push((function(cell) {
+          return $("#cell" + cell).click(function() {
+            return fn(cell);
+          });
+        })(cell));
+      }
+      return _results;
     },
-    displayForm: function() {
+    displayForm: function(fn) {
       var str;
       str = "<div id=\"newGameForm\">            <div>              Marker:                <input type=\"radio\" name=\"marker\" value=\"X\" checked> X                <input type=\"radio\" name=\"marker\"   value=\"O\"> O            </div>            <div>              Move:                <input type=\"radio\" name=\"move\" value=\"0\" checked> First                <input type=\"radio\" name=\"move\" value=\"1\"> Second            </div>            <button type=\"button\" id=\"newGameButton\">Play!</button>          </div>";
       $("#board").append(str);
-      return $("#newGameButton");
+      return $("#newGameButton").click(fn);
     },
     getCell: function(cellNum) {
       return $("#cell" + cellNum);

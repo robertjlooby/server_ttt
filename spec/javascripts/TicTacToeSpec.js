@@ -2,7 +2,8 @@
 (function() {
   describe("TicTacToe.resetBoard", function() {
     beforeEach(function() {
-      return affix("#board");
+      affix("#board");
+      return spyOn(TicTacToe.display, "resetBoard");
     });
     it("should reset TicTacToe.boardState to an empty board", function() {
       TicTacToe.boardState = "blahblah";
@@ -14,65 +15,51 @@
       TicTacToe.resetBoard("X");
       return expect(TicTacToe.buttonsEnabled).toBe(false);
     });
-    return it("should attack a click event handler to each cell", function() {
-      spyOn($.fn, "click");
+    return it("should pass event handler to display.resetBoard which calls makeMove", function() {
+      var eventFn;
+      spyOn(TicTacToe, "makeMove");
       TicTacToe.resetBoard("X");
-      return expect($.fn.click.calls.length).toBe(9);
+      eventFn = TicTacToe.display.resetBoard.calls[0].args[0];
+      expect(eventFn(0)).toBe(void 0);
+      TicTacToe.buttonsEnabled = true;
+      eventFn(0);
+      return expect(TicTacToe.makeMove).toHaveBeenCalledWith("X", "_________", 0);
     });
   });
 
   describe("TicTacToe.displayForm", function() {
-    beforeEach(function() {
-      return affix("#newGameButton");
-    });
-    return it("attaches a click handler to call initializeGame to the button returned by display.displayForm()", function() {
+    return it("passes an event handler to call initializeGame to  display.displayForm()", function() {
       spyOn(TicTacToe, "initializeGame");
-      spyOn(TicTacToe.display, "displayForm").andReturn($("#newGameButton"));
+      spyOn(TicTacToe.display, "displayForm");
       TicTacToe.displayForm();
-      $("#newGameButton").click();
+      expect(TicTacToe.initializeGame).not.toHaveBeenCalled();
+      TicTacToe.display.displayForm.calls[0].args[0]();
       return expect(TicTacToe.initializeGame).toHaveBeenCalled();
     });
   });
 
-  describe("TicTacToe.button clickability", function() {
+  describe("TicTacToe.disable/enable Buttons", function() {
+    var eventFn;
+    eventFn = null;
     beforeEach(function() {
-      affix("#board");
-      return TicTacToe.resetBoard("X");
+      spyOn(TicTacToe, "makeMove");
+      spyOn(TicTacToe.display, "resetBoard");
+      TicTacToe.resetBoard("X");
+      return eventFn = TicTacToe.display.resetBoard.calls[0].args[0];
     });
     it("buttons should do nothing by default", function() {
-      var initialBoard;
-      initialBoard = $("#board").html();
-      spyOn(TicTacToe, "makeMove");
-      $(".button").each(function() {
-        $(this).click();
-        return expect($("#board").html()).toBe(initialBoard);
-      });
+      eventFn(0);
       return expect(TicTacToe.makeMove).not.toHaveBeenCalled();
     });
     it("should enable all buttons", function() {
-      var cell, _i, _results;
-      spyOn(TicTacToe, "makeMove");
       TicTacToe.enableButtons();
-      $(".button").each(function() {
-        return $(this).click();
-      });
-      expect(TicTacToe.makeMove.calls.length).toBe(9);
-      _results = [];
-      for (cell = _i = 0; _i <= 8; cell = ++_i) {
-        _results.push(expect(TicTacToe.makeMove).toHaveBeenCalledWith("X", "_________", cell));
-      }
-      return _results;
+      eventFn(0);
+      return expect(TicTacToe.makeMove).toHaveBeenCalledWith("X", "_________", 0);
     });
     return it("should be able to disable buttons again", function() {
-      var initialBoard;
-      initialBoard = $("#board").html();
-      spyOn(TicTacToe, "makeMove");
       TicTacToe.enableButtons();
       TicTacToe.disableButtons();
-      $(".button").each(function() {
-        $(this).click();
-        return expect($("#board").html()).toBe(initialBoard);
-      });
+      eventFn(0);
       return expect(TicTacToe.makeMove).not.toHaveBeenCalled();
     });
   });

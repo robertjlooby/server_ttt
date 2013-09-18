@@ -1,6 +1,7 @@
 describe "TicTacToe.resetBoard", ->
   beforeEach ->
     affix("#board")
+    spyOn(TicTacToe.display, "resetBoard")
 
   it "should reset TicTacToe.boardState to an empty board", ->
     TicTacToe.boardState = "blahblah"
@@ -12,52 +13,46 @@ describe "TicTacToe.resetBoard", ->
     TicTacToe.resetBoard "X"
     expect(TicTacToe.buttonsEnabled).toBe(false)
 
-  it "should attack a click event handler to each cell", ->
-    spyOn $.fn, "click"
+  it "should pass event handler to display.resetBoard which calls makeMove", ->
+    spyOn(TicTacToe, "makeMove")
     TicTacToe.resetBoard "X"
-    expect($.fn.click.calls.length).toBe(9)
+    eventFn = TicTacToe.display.resetBoard.calls[0].args[0]
+    expect(eventFn(0)).toBe(undefined)
+    TicTacToe.buttonsEnabled = true
+    eventFn(0)
+    expect(TicTacToe.makeMove).toHaveBeenCalledWith("X", "_________", 0)
 
 describe "TicTacToe.displayForm", ->
-  beforeEach ->
-    affix("#newGameButton")
-
-  it "attaches a click handler to call initializeGame to the button returned by display.displayForm()", ->
+  it "passes an event handler to call initializeGame to  display.displayForm()", ->
     spyOn(TicTacToe, "initializeGame")
-    spyOn(TicTacToe.display, "displayForm").andReturn($("#newGameButton"))
+    spyOn(TicTacToe.display, "displayForm")
     TicTacToe.displayForm()
-    $("#newGameButton").click()
+    expect(TicTacToe.initializeGame).not.toHaveBeenCalled()
+    TicTacToe.display.displayForm.calls[0].args[0]()
     expect(TicTacToe.initializeGame).toHaveBeenCalled()
 
-describe "TicTacToe.button clickability", ->
+describe "TicTacToe.disable/enable Buttons", ->
+  eventFn = null
+
   beforeEach ->
-    affix("#board")
+    spyOn(TicTacToe, "makeMove")
+    spyOn(TicTacToe.display, "resetBoard")
     TicTacToe.resetBoard "X"
+    eventFn = TicTacToe.display.resetBoard.calls[0].args[0]
 
   it "buttons should do nothing by default", ->
-    initialBoard = $("#board").html()
-    spyOn(TicTacToe, "makeMove")
-    $(".button").each ->
-      $(this).click()
-      expect($("#board").html()).toBe(initialBoard)
+    eventFn(0)
     expect(TicTacToe.makeMove).not.toHaveBeenCalled()
 
   it "should enable all buttons", ->
-    spyOn(TicTacToe, "makeMove")
     TicTacToe.enableButtons()
-    $(".button").each ->
-      $(this).click()
-    expect(TicTacToe.makeMove.calls.length).toBe(9)
-    for cell in [0..8]
-      expect(TicTacToe.makeMove).toHaveBeenCalledWith("X", "_________", cell)
+    eventFn(0)
+    expect(TicTacToe.makeMove).toHaveBeenCalledWith("X", "_________", 0)
 
   it "should be able to disable buttons again", ->
-    initialBoard = $("#board").html()
-    spyOn(TicTacToe, "makeMove")
     TicTacToe.enableButtons()
     TicTacToe.disableButtons()
-    $(".button").each ->
-      $(this).click()
-      expect($("#board").html()).toBe(initialBoard)
+    eventFn(0)
     expect(TicTacToe.makeMove).not.toHaveBeenCalled()
 
 describe "TicTacToe.getNewBoardState", ->

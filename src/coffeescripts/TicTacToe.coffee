@@ -5,16 +5,12 @@ TicTacToe =
   resetBoard: (marker) ->
     TicTacToe.buttonsEnabled = false
     TicTacToe.boardState = "_________"
-    TicTacToe.display.resetBoard(marker)
-    for cell in [0..8]
-      do (cell) ->
-        TicTacToe.display.getButton(cell).click( ->
+    TicTacToe.display.resetBoard( (cell) ->
           if TicTacToe.buttonsEnabled
             TicTacToe.makeMove(marker, TicTacToe.boardState, cell))
 
   displayForm: ->
-    button = TicTacToe.display.displayForm()
-    button.click( -> TicTacToe.initializeGame())
+    TicTacToe.display.displayForm(-> TicTacToe.initializeGame())
 
   disableButtons: ->
     TicTacToe.buttonsEnabled = false
