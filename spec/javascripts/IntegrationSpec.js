@@ -64,7 +64,6 @@
       spyOn($, "ajax").andCallFake(function(params) {
         return setTimeout((function() {
           var expArgs, realArgs;
-          console.log("Called ajax. aiMoves = " + aiMoves);
           if (aiMoves > 0) {
             realArgs = TicTacToe.updateBoardHuman.mostRecentCall.args;
             expArgs = humanMoves[aiMoves - 1];
@@ -72,6 +71,7 @@
             expect(realArgs[1]).toBe(expArgs.boardState);
             expect(realArgs[2]).toBe(expArgs.cellNum);
           }
+          expect(TicTacToe.buttonsEnabled).toBe(false);
           params.success(json[aiMoves]);
           expect(TicTacToe.boardState).toBe(json[aiMoves].boardState);
           realArgs = TicTacToe.updateBoardAI.mostRecentCall.args[0];
@@ -81,8 +81,10 @@
           expect(realArgs[2]).toBe(expArgs[1]);
           expect(realArgs[3]).toBe(expArgs[2]);
           aiMoves += 1;
-          console.log("about to click on cell" + humanMoves[aiMoves - 1].cellNum);
-          return $("#cell" + humanMoves[aiMoves - 1].cellNum + " .button").click();
+          if (aiMoves < 6) {
+            expect(TicTacToe.buttonsEnabled).toBe(true);
+            return $("#cell" + humanMoves[aiMoves - 1].cellNum + " .button").click();
+          }
         }), 0);
       });
       waitsFor((function() {

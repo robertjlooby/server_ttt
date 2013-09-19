@@ -36,13 +36,13 @@ describe "integration tests", ->
     spyOn($, "ajax").andCallFake(
       (params) ->
         setTimeout(( ->
-            console.log "Called ajax. aiMoves = #{aiMoves}"
             if aiMoves > 0
               realArgs = TicTacToe.updateBoardHuman.mostRecentCall.args
               expArgs  = humanMoves[aiMoves-1]
               expect(realArgs[0]).toBe("X")
               expect(realArgs[1]).toBe(expArgs.boardState)
               expect(realArgs[2]).toBe(expArgs.cellNum)
+            expect(TicTacToe.buttonsEnabled).toBe(false)
             params.success(json[aiMoves])
             expect(TicTacToe.boardState).toBe(json[aiMoves].boardState)
             realArgs = TicTacToe.updateBoardAI.mostRecentCall.args[0]
@@ -52,8 +52,9 @@ describe "integration tests", ->
             expect(realArgs[2]).toBe(expArgs[1])
             expect(realArgs[3]).toBe(expArgs[2])
             aiMoves += 1
-            console.log "about to click on cell#{humanMoves[aiMoves - 1].cellNum}"
-            $("#cell#{humanMoves[aiMoves-1].cellNum} .button").click()),
+            if aiMoves < 6
+              expect(TicTacToe.buttonsEnabled).toBe(true)
+              $("#cell#{humanMoves[aiMoves-1].cellNum} .button").click()),
           0))
 
     waitsFor((-> (aiMoves == 6)), "should play game", 5000)
