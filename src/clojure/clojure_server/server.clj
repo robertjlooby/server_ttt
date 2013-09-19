@@ -86,35 +86,36 @@
     (if (.isClosed server-socket) (prn "echo-server exiting, socket closed") (recur))))
 
 (defn server [server-socket directory router]
-  (loop []
-    (let [socket-to-client (listen server-socket)]
-      (future
-        (with-open [socket socket-to-client]
-          (let [p-o-stream (socket-writer socket)
-                request  (parse-request socket)
-                router-response (router request)
-                headers (build-response router-response)]
-            (doseq [line headers]
-              (.println p-o-stream line))
-            (let [i-stream (:content-stream (first router-response))
-                  o-stream (.getOutputStream socket)
-                  length (or (:Content-Length
-                               (:headers (first router-response)))
-                             Integer/MAX_VALUE)
-                  chunk-size 1024
-                  b-a (byte-array chunk-size)]
-              (loop [num-read 
-                        (.read i-stream b-a 0 (min length chunk-size))
-                     tot-read 0]
-                (cond
-                  (< num-read chunk-size)
-                    (do
-                      (if (> num-read 0) (.write o-stream b-a 0 num-read))
-                      (.flush o-stream))
-                  :else
-                    (do
-                      (.write o-stream b-a 0 num-read)
-                      (recur (.read i-stream b-a 0 
-                                    (min (- length num-read tot-read) chunk-size))
-                             (+ num-read tot-read))))))))))
-    (if (.isClosed server-socket) (prn "server exiting, socket closed") (recur))))
+  (let [socket-to-client (listen server-socket)]
+    (future
+      (with-open [socket socket-to-client]
+        (let [p-o-stream (socket-writer socket)
+              request  (parse-request socket)
+              router-response (router request)
+              headers (build-response router-response)]
+          (doseq [line headers]
+            (.println p-o-stream line))
+          (let [i-stream (:content-stream (first router-response))
+                o-stream (.getOutputStream socket)
+                length (or (:Content-Length
+                             (:headers (first router-response)))
+                           Integer/MAX_VALUE)
+                chunk-size 1024
+                b-a (byte-array chunk-size)]
+            (loop [num-read 
+                      (.read i-stream b-a 0 (min length chunk-size))
+                   tot-read 0]
+              (cond
+                (< num-read chunk-size)
+                  (do
+                    (if (> num-read 0) (.write o-stream b-a 0 num-read))
+                    (.flush o-stream))
+                :else
+                  (do
+                    (.write o-stream b-a 0 num-read)
+                    (recur (.read i-stream b-a 0 
+                                  (min (- length num-read tot-read) chunk-size))
+                           (+ num-read tot-read))))))))))
+  (if (.isClosed server-socket) 
+      (prn "server exiting, socket closed") 
+      (recur server-socket directory router)))
