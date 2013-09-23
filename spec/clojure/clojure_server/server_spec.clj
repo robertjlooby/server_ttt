@@ -62,11 +62,24 @@
   (it "should return vector response"
     (should= (class []) (class (serve-file @goodpath {}))))
 
-  (it "should have a :content-stream"
-    (should= true (isa? (class
-                          (:content-stream
-                            (first (serve-file @goodpath {}))))
-                        java.io.InputStream)))
+  (it "should have an InputStream :body if it is an image"
+    (let [response (serve-file @partial-path 
+                               {:headers {:Range "bytes=0-4"}})
+          body-class (class (:body (first response)))]
+      (should= true (isa? body-class java.io.InputStream))))
+
+  (it "should have an InputStream :body if it is a partial"
+    (let [response (serve-file @gifpath {})
+          body-class (class (:body (first response)))]
+      (should= true (isa? body-class java.io.InputStream))))
+
+  (it "should have a sequential :body if it is a directory"
+    (let [response (serve-file @dirpath {})]
+      (should= true (sequential? (:body (first response))))))
+
+  (it "should have a sequential :body if it is a 404"
+    (let [response (serve-file @badpath {})]
+      (should= true (sequential? (:body (first response))))))
 
   (it "should have a status code"
     (should= (class 200) (class (second (serve-file @goodpath {})))))
@@ -75,11 +88,9 @@
     (should= 2 (count (serve-file @goodpath {}))))
 
   (it "should have the contents of the file"
-    (let [stream (:content-stream (first (serve-file @goodpath {})))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)]
-    (should-contain "file1 contents" (String. b-a))
-    (should= 200 (second (serve-file @goodpath {})))))
+    (let [str-seq (:body (first (serve-file @goodpath {})))]
+      (should= '("file1 contents") str-seq)
+      (should= 200 (second (serve-file @goodpath {})))))
 
   (it "should return a 404 for bad path"
     (should= 404 (second (serve-file @badpath {}))))
@@ -89,34 +100,28 @@
                                                     {:Range "bytes=0-4"}}))))
 
   (it "should have the name of the directory served"
-    (let [stream (:content-stream (first (serve-file @dirpath {})))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)]
-    (should-contain @dirpath (String. b-a))
-    (should= 200 (second (serve-file @dirpath {})))))
+    (let [str-seq (:body (first (serve-file @dirpath {})))]
+      (should-contain @dirpath (clojure.string/join str-seq))
+      (should= 200 (second (serve-file @dirpath {})))))
 
   (it "should have links to files in directory"
-    (let [stream (:content-stream (first (serve-file @dirpath {})))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)]
-    (should-contain
-      "<div><a href=\"/image.gif\">image.gif</a></div>"
-      (String. b-a))
-    (should-contain
-      "<div><a href=\"/file1\">file1</a></div>"
-      (String. b-a))
-    (should= 200 (second (serve-file @dirpath {})))))
+    (let [str-seq (:body (first (serve-file @dirpath {})))]
+      (should-contain
+        "<div><a href=\"/image.gif\">image.gif</a></div>"
+        (clojure.string/join str-seq))
+      (should-contain
+        "<div><a href=\"/file1\">file1</a></div>"
+        (clojure.string/join str-seq))
+      (should= 200 (second (serve-file @dirpath {})))))
   
   (it "should serve as HTML page"
-    (let [stream (:content-stream (first (serve-file @dirpath {})))
-          b-a (byte-array 5000)
-          _ (.read stream b-a 0 5000)]
-    (should-contain
-      "<!DOCTYPE html>"
-      (String. b-a))
-    (should-contain
-      "<body>"
-      (String. b-a))))
+    (let [str-seq (:body (first (serve-file @dirpath {})))]
+      (should-contain
+        "<!DOCTYPE html>"
+        (clojure.string/join str-seq))
+      (should-contain
+        "<body>"
+        (clojure.string/join str-seq))))
 
   (it "should have a header of :media-type 'image/gif' for gif files"
     (should= "image/gif"
@@ -142,21 +147,6 @@
     (should= ".png" (extension "/even.with.periods.png")))
 )
 
-(describe "echo-server"
-  (it "listens to the socket and echos the pathname"
-    (let [addr (java.net.InetAddress/getByName "localhost")]
-      (with-open [server-socket (create-server-socket 3000 addr)]
-        (future (echo-server server-socket))
-        (with-open [client-socket (connect-socket addr 3000)]
-          (let [i-stream (socket-reader client-socket)
-                o-stream (socket-writer client-socket)]
-            (.println o-stream "GET /helloworld HTTP/1.1\r\n")
-            (should-contain "HTTP/1.1 200 OK" 
-                            (doall (read-until-emptyline i-stream)))
-            (should-contain "/helloworld" 
-                            (read-until-emptyline i-stream)))))))
-)
-
 (describe "server"
   (it "listens to the socket and can serve a static directory"
     (let [path (.getAbsolutePath (clojure.java.io/file
@@ -176,8 +166,7 @@
             (should-contain "HTTP/1.1 200 OK"
                             (doall (read-until-emptyline i-stream)))
             (should-contain path
-                            (first
-                              (read-until-emptyline i-stream)))))
+                              (read-until-emptyline i-stream))))
         (with-open [client-socket (connect-socket addr 3001)]
           (let [i-stream (socket-reader client-socket)
                 o-stream (socket-writer client-socket)]

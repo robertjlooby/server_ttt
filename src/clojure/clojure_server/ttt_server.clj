@@ -11,7 +11,7 @@
 
 (defn response-from-string [response]
   [{:headers {:Content-Length (count response)}
-    :content-stream (StringBufferInputStream. response)} 200])
+    :body [response]} 200])
 
 (defn get-ai-move [ai-key board-str]
   (let [ai-sym (if (= ai-key :X) BoardMarker/X

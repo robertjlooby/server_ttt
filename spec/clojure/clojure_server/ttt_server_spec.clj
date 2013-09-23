@@ -32,18 +32,16 @@
 (describe "start-game"
   (it "should return empty board for move 0"
     (let [response (start-game {:body '("marker=X&move=0")})
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
+          body (:body (first response))]
       (should= {:boardState "_________" :aiMove -1 :result nil}
-               (json/read-str body :key-fn keyword))
+               (json/read-str (first body) :key-fn keyword))
       (should= 200 (second response))))
 
   (it "should return board with 1 move made for move 1"
     (let [response (start-game {:body '("marker=X&move=1")})
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
+          body (:body (first response))]
       (should= {:boardState "O________" :aiMove 0 :result nil}
-               (json/read-str body :key-fn keyword))
+               (json/read-str (first body) :key-fn keyword))
       (should= 200 (second response))))
 )
 
@@ -52,62 +50,56 @@
     (reset! port 3000)
     (let [req {:body '("marker=O&board_state=O________")}
           response (take-turn req {})
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
+          body (:body (first response))]
       (should= 200 (second response))
       (should= {:boardState "O___X____" :aiMove 4 :result nil}
-               (json/read-str body :key-fn keyword))))
+               (json/read-str (first body) :key-fn keyword))))
 
   (it "should return W if player wins"
     (reset! port 3000)
     (let [req {:body '("marker=O&board_state=O_XO_XO__")}
           response (take-turn req {})
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
+          body (:body (first response))]
       (should= 200 (second response))
       (should= {:boardState "O_XO_XO__" :aiMove -1 :result "W"}
-               (json/read-str body :key-fn keyword))))
+               (json/read-str (first body) :key-fn keyword))))
 
 
   (it "should return T if player ties"
     (reset! port 3000)
     (let [req {:body '("marker=O&board_state=OXOXXOOOX")}
           response (take-turn req {})
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
+          body (:body (first response))]
       (should= 200 (second response))
       (should= {:boardState "OXOXXOOOX" :aiMove -1 :result "T"}
-               (json/read-str body :key-fn keyword))))
+               (json/read-str (first body) :key-fn keyword))))
 
   (it "should return L if player loses"
     (reset! port 3000)
     (let [req {:body '("marker=X&board_state=O_XOOOX_X")}
           response (take-turn req {})
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
+          body (:body (first response))]
       (should= 200 (second response))
       (should= {:boardState "O_XOOOX_X" :aiMove -1 :result "L"}
-               (json/read-str body :key-fn keyword))))
+               (json/read-str (first body) :key-fn keyword))))
 
   (it "should return L if player loses after an ai move"
     (reset! port 3000)
     (let [req {:body '("marker=X&board_state=O_XOO_X_X")}
           response (take-turn req {})
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
+          body (:body (first response))]
       (should= 200 (second response))
       (should= {:boardState "O_XOOOX_X" :aiMove 5 :result "L"}
-               (json/read-str body :key-fn keyword))))
+               (json/read-str (first body) :key-fn keyword))))
 
   (it "should return tie if ai ties"
     (reset! port 3000)
     (let [req {:body '("marker=X&board_state=XOXOOX_XO")}
           response (take-turn req {})
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
+          body (:body (first response))]
       (should= 200 (second response))
       (should= {:boardState "XOXOOXOXO" :aiMove 6 :result "T"}
-               (json/read-str body :key-fn keyword))))
+               (json/read-str (first body) :key-fn keyword))))
 )
 
 (describe "result"
@@ -127,23 +119,21 @@
 (describe "initialize-page"
   (it "should display an HTML page"
     (let [response (initialize-page)
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
-            (should 
-              (re-matches 
-                #"<!DOCTYPE html><html><head>[\s\S]*</head><body>[\s\S]*</body></html>[\s\S]*"
-                body))
-            (should= 200 (second response))))
+          body (:body (first response))]
+      (should 
+        (re-matches 
+          #"<!DOCTYPE html><html><head>[\s\S]*</head><body>[\s\S]*</body></html>[\s\S]*"
+          (first body)))
+      (should= 200 (second response))))
 
   (it "should have a #board div"
     (let [response (initialize-page)
-          stream (:content-stream (first response))
-          body (stream-to-string stream)]
-            (should 
-              (re-matches 
-                #"[\s\S]*<div id=\"board\"></div>[\s\S]*"
-                body))
-            (should= 200 (second response))))
+          body (:body (first response))]
+      (should 
+        (re-matches 
+          #"[\s\S]*<div id=\"board\"></div>[\s\S]*"
+          (first body)))
+      (should= 200 (second response))))
 )
 
 (describe "router"
