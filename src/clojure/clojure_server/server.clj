@@ -77,9 +77,8 @@
                       :string-seq
                     (isa? (class (:body (first response)))
                           InputStream)
-                      :stream
-                    :else
-                      :string-seq)))
+                      :stream)))
+
 (defmethod serve :string-seq [response, o-stream]
   (let [p-writer (PrintWriter. o-stream)]
     (doseq [line (:body (first response))]
