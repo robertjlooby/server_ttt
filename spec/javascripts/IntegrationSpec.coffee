@@ -4,7 +4,7 @@ describe "integration tests", ->
     affix("#board")
     aiMoves = 0
 
-  it "should play a tie game", ->
+  xit "should play a tie game", ->
     #initial form display
     TicTacToe.displayForm()
 
