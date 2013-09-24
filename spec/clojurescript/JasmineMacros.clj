@@ -13,3 +13,16 @@
   `(-> ~actual
        (~'js/expect)
        (.toBe ~expected)))
+
+(defmacro affixTo
+  ([node id]
+   `(.affix ~node ~id))
+  ([node id fun text]
+   `(-> ~node
+        (.affix ~id)
+        (~fun ~text)))
+  ([node id1 id2 fun text]
+   `(-> ~node
+        (.affix ~id1)
+        (.affix ~id2)
+        (~fun ~text))))

@@ -20,12 +20,12 @@ describe("CSSDisplay.getCell", function() {
 describe("CSSDisplay.getButton", function() {
   beforeEach(function() {
     var board = affix("#board");
-    domina.set_text_BANG_.call(null, board.affix("#cell0").affix(".button"), "button 0");
-    return domina.set_text_BANG_.call(null, board.affix("#cell3").affix(".button"), "button 3")
+    domina.set_text_BANG_.call(null, board.affix("#cell0").affix(".button"), "btn 0");
+    return domina.set_text_BANG_.call(null, board.affix("#cell3").affix(".button"), "btn 3")
   });
   it("should get the given button by number", function() {
-    expect(domina.text.call(null, CSSDisplay.getButton.call(null, 0))).toBe("button 0");
-    return expect(domina.text.call(null, CSSDisplay.getButton.call(null, 3))).toBe("button 3")
+    expect(domina.text.call(null, CSSDisplay.getButton.call(null, 0))).toBe("btn 0");
+    return expect(domina.text.call(null, CSSDisplay.getButton.call(null, 3))).toBe("btn 3")
   });
   return it("should return null for invalid cell", function() {
     return expect(CSSDisplay.getButton.call(null, -1)).toBe(null)
