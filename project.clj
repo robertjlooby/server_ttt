@@ -8,7 +8,7 @@
                  [org.clojure/clojure-contrib "1.2.0"]
                  [org.clojure/clojurescript"0.0-1889"]
                  [org.clojure/google-closure-library-third-party "0.0-2029"]
-                 [domina "1.0.0"]
+                 [domina "1.0.2-SNAPSHOT"]
                  [hiccups "0.2.0"]]
   :profiles {:dev {:dependencies [[speclj "2.5.0"]
                                   [junit/junit "4.10"]]}}
