@@ -1,8 +1,15 @@
 # JavaTicTacToe in browser with clojure_server
 
-To run clojure tests: `lein spec`
+To run Clojure tests:    `lein spec`
 
-To run java tests:    `lein junit`
+To run Java tests:       `lein junit`
+
+To run JavaScript tests: `rake jasmine`
+
+                         visit http://localhost:8888/ in a browser
+
+To compile ClojureScripts: `rake spec_trim &`
+                           `lein cljsbuild auto`
 
 To run the server:
 
