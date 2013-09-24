@@ -12,7 +12,6 @@
 #
 src_files:
     - 'javascripts/jquery-1.10.2.min.js'
-    - 'javascripts/main.js'
     - 'javascripts/**/*.js'
 
 # stylesheets

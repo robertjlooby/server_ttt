@@ -26,5 +26,11 @@
                         :compiler {
                                    :output-to "ttt_public/javascripts/main.js"
                                    :optimizations :whitespace
+                                   :pretty-print true}}
+                       {
+                        :source-paths ["spec/clojurescript"]
+                        :compiler {
+                                   :output-to "spec/javascripts/mainSpec.js"
+                                   :optimizations :whitespace
                                    :pretty-print true}}]}
   :main clojure_server.ttt-server)
