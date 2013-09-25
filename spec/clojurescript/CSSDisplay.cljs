@@ -2,6 +2,7 @@
   (:require-macros [hiccups.core :as h]
                    [JasmineMacros :as jas])
   (:require [domina :as dom]
+            [domina.css :as css]
             [hiccups.runtime :as hiccupsrt]
             [domina.events :as ev]))
 
@@ -34,6 +35,31 @@
       (doall
         (for [c (range 0 9)]
           (jas/expectToHaveBeenCalledWith fun c)))))
+)
+
+(jas/describe "CSSDisplay.displayForm"
+  (jas/beforeEach
+    (let [board (js/affix "#board")]
+      (jas/affixTo board "#fakeBoard" dom/set-text! "a board")))
+
+  (jas/it "should display the form"
+    (CSSDisplay.displayForm #())
+    (jas/expectToMatch (dom/html (dom/by-id "newGameForm"))
+     "<input checked=\"checked\" name=\"marker\" value=\"X\" type=\"radio\">X")
+    (jas/expectToMatch (dom/html (dom/by-id "newGameForm"))
+     "<input checked=\"checked\" name=\"move\" value=\"0\" type=\"radio\">First")
+    (jas/expectToMatch (dom/html (dom/by-id "newGameForm"))
+     "<button id=\"newGameButton\" type=\"button\">Play!</button>"))
+
+  (jas/it "should not remove other board elements"
+    (CSSDisplay.displayForm #())
+    (jas/expectToBe (dom/text (dom/by-id "fakeBoard")) "a board"))
+
+  (jas/it "should attach the given function to the button"
+    (let [fun (.createSpy js/jasmine "fun")]
+      (CSSDisplay.displayForm fun)
+      (ev/dispatch! (dom/by-id "newGameButton") :click {})
+      (jas/expectToBe (.-length (.-calls fun)) 1)))
 )
 
 (jas/describe "CSSDisplay.getCell"
@@ -105,4 +131,21 @@
     (jas/expectToBe (CSSDisplay.getMove) "0")
     (dom/set-attr! (dom/by-id "one") :checked true)
     (jas/expectToBe (CSSDisplay.getMove) "1"))
+)
+
+(jas/describe "CSSDisplay end of game messages"
+  (jas/beforeEach
+    (js/affix "#board"))
+
+  (jas/it "should display a win message"
+    (CSSDisplay.displayWinMessage)
+    (jas/expectToMatch (dom/text (css/sel "#board h1")) "Win"))
+
+  (jas/it "should display a lose message"
+    (CSSDisplay.displayLoseMessage)
+    (jas/expectToMatch (dom/text (css/sel "#board h1")) "Lose"))
+
+  (jas/it "should display a tie message"
+    (CSSDisplay.displayTieMessage)
+    (jas/expectToMatch (dom/text (css/sel "#board h1")) "Tie"))
 )

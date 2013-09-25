@@ -4,6 +4,7 @@
             [domina.css :as css]
             [hiccups.runtime :as hiccupsrt]
             [domina.events :as ev]))
+
 (defn resetBoard [fun]
   (->> (map #(h/html [(str "div#row" %) 
                        (for [col (range 0 3)]
@@ -16,6 +17,17 @@
     (for [cell (range 0 9)]
       (-> (dom/by-id (str "cell" cell))
           (ev/listen! :click (fn [evt] (fun cell)))))))
+
+(defn displayForm [fun]
+  (->> (h/html [:div#newGameForm [:div "Marker:"
+                                       [:input {:name "marker" :type "radio" :value "X" :checked true} "X"]
+                                       [:input {:name "marker" :type "radio" :value "O"} "O"]]
+                                 [:div "Move:"
+                                       [:input {:name "move" :type "radio" :value "0" :checked true} "First"]
+                                       [:input {:name "move" :type "radio" :value "1"} "Second"]]
+                                 [:button#newGameButton {:type "button"} "Play!"]])
+       (dom/append! (dom/by-id "board")))
+  (ev/listen! (dom/by-id "newGameButton") :click fun))
 
 (defn getCell [cellNum]
   (dom/by-id (str "cell" cellNum)))
@@ -35,3 +47,12 @@
 (defn getMove []
   (-> (css/sel "input[name=\"move\"]:checked")
       (dom/value)))
+
+(defn displayWinMessage []
+  (dom/prepend! (dom/by-id "board") (h/html [:h1 "You Win!"])))
+
+(defn displayLoseMessage []
+  (dom/prepend! (dom/by-id "board") (h/html [:h1 "You Lose!"])))
+
+(defn displayTieMessage []
+  (dom/prepend! (dom/by-id "board") (h/html [:h1 "It was a Tie!"])))
