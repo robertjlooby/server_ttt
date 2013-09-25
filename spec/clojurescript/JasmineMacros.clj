@@ -14,6 +14,16 @@
        (~'js/expect)
        (.toBe ~expected)))
 
+(defmacro expectToMatch [actual expected]
+  `(-> ~actual
+       (~'js/expect)
+       (.toMatch ~expected)))
+
+(defmacro expectToHaveBeenCalledWith [fun arg]
+  `(-> ~fun
+       (~'js/expect)
+       (.toHaveBeenCalledWith ~arg)))
+
 (defmacro affixTo
   ([node id]
    `(.affix ~node ~id))

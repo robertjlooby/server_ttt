@@ -29909,6 +29909,112 @@ goog.require("domina.events");
 goog.require("hiccups.runtime");
 goog.require("domina.css");
 goog.require("domina");
+CSSDisplay.resetBoard = function resetBoard(fun) {
+  domina.set_html_BANG_.call(null, domina.by_id.call(null, "board"), cljs.core.apply.call(null, cljs.core.str, cljs.core.map.call(null, function(p1__28504_SHARP_) {
+    return[cljs.core.str(hiccups.runtime.render_element.call(null, cljs.core.PersistentVector.fromArray([[cljs.core.str("div#row"), cljs.core.str(p1__28504_SHARP_)].join(""), function() {
+      var iter__3530__auto__ = function iter__28513(s__28514) {
+        return new cljs.core.LazySeq(null, false, function() {
+          var s__28514__$1 = s__28514;
+          while(true) {
+            var temp__4092__auto__ = cljs.core.seq.call(null, s__28514__$1);
+            if(temp__4092__auto__) {
+              var s__28514__$2 = temp__4092__auto__;
+              if(cljs.core.chunked_seq_QMARK_.call(null, s__28514__$2)) {
+                var c__3528__auto__ = cljs.core.chunk_first.call(null, s__28514__$2);
+                var size__3529__auto__ = cljs.core.count.call(null, c__3528__auto__);
+                var b__28516 = cljs.core.chunk_buffer.call(null, size__3529__auto__);
+                if(function() {
+                  var i__28515 = 0;
+                  while(true) {
+                    if(i__28515 < size__3529__auto__) {
+                      var col = cljs.core._nth.call(null, c__3528__auto__, i__28515);
+                      cljs.core.chunk_append.call(null, b__28516, function() {
+                        var cell = p1__28504_SHARP_ * 3 + col;
+                        return cljs.core.PersistentVector.fromArray([[cljs.core.str("div#cell"), cljs.core.str(cell)].join(""), cljs.core.PersistentVector.fromArray([new cljs.core.Keyword(null, "button.button", "button.button", 1398701280), [cljs.core.str(cell)].join("")], true)], true)
+                      }());
+                      var G__28521 = i__28515 + 1;
+                      i__28515 = G__28521;
+                      continue
+                    }else {
+                      return true
+                    }
+                    break
+                  }
+                }()) {
+                  return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__28516), iter__28513.call(null, cljs.core.chunk_rest.call(null, s__28514__$2)))
+                }else {
+                  return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__28516), null)
+                }
+              }else {
+                var col = cljs.core.first.call(null, s__28514__$2);
+                return cljs.core.cons.call(null, function() {
+                  var cell = p1__28504_SHARP_ * 3 + col;
+                  return cljs.core.PersistentVector.fromArray([[cljs.core.str("div#cell"), cljs.core.str(cell)].join(""), cljs.core.PersistentVector.fromArray([new cljs.core.Keyword(null, "button.button", "button.button", 1398701280), [cljs.core.str(cell)].join("")], true)], true)
+                }(), iter__28513.call(null, cljs.core.rest.call(null, s__28514__$2)))
+              }
+            }else {
+              return null
+            }
+            break
+          }
+        }, null)
+      };
+      return iter__3530__auto__.call(null, cljs.core.range.call(null, 0, 3))
+    }()], true)))].join("")
+  }, cljs.core.range.call(null, 0, 3))));
+  return cljs.core.doall.call(null, function() {
+    var iter__3530__auto__ = function iter__28517(s__28518) {
+      return new cljs.core.LazySeq(null, false, function() {
+        var s__28518__$1 = s__28518;
+        while(true) {
+          var temp__4092__auto__ = cljs.core.seq.call(null, s__28518__$1);
+          if(temp__4092__auto__) {
+            var s__28518__$2 = temp__4092__auto__;
+            if(cljs.core.chunked_seq_QMARK_.call(null, s__28518__$2)) {
+              var c__3528__auto__ = cljs.core.chunk_first.call(null, s__28518__$2);
+              var size__3529__auto__ = cljs.core.count.call(null, c__3528__auto__);
+              var b__28520 = cljs.core.chunk_buffer.call(null, size__3529__auto__);
+              if(function() {
+                var i__28519 = 0;
+                while(true) {
+                  if(i__28519 < size__3529__auto__) {
+                    var cell = cljs.core._nth.call(null, c__3528__auto__, i__28519);
+                    cljs.core.chunk_append.call(null, b__28520, domina.events.listen_BANG_.call(null, domina.by_id.call(null, [cljs.core.str("cell"), cljs.core.str(cell)].join("")), new cljs.core.Keyword(null, "click", "click", 1108654330), function(i__28519, cell, c__3528__auto__, size__3529__auto__, b__28520, s__28518__$2, temp__4092__auto__) {
+                      return function(evt) {
+                        return fun.call(null, cell)
+                      }
+                    }(i__28519, cell, c__3528__auto__, size__3529__auto__, b__28520, s__28518__$2, temp__4092__auto__)));
+                    var G__28522 = i__28519 + 1;
+                    i__28519 = G__28522;
+                    continue
+                  }else {
+                    return true
+                  }
+                  break
+                }
+              }()) {
+                return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__28520), iter__28517.call(null, cljs.core.chunk_rest.call(null, s__28518__$2)))
+              }else {
+                return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__28520), null)
+              }
+            }else {
+              var cell = cljs.core.first.call(null, s__28518__$2);
+              return cljs.core.cons.call(null, domina.events.listen_BANG_.call(null, domina.by_id.call(null, [cljs.core.str("cell"), cljs.core.str(cell)].join("")), new cljs.core.Keyword(null, "click", "click", 1108654330), function(cell, s__28518__$2, temp__4092__auto__) {
+                return function(evt) {
+                  return fun.call(null, cell)
+                }
+              }(cell, s__28518__$2, temp__4092__auto__)), iter__28517.call(null, cljs.core.rest.call(null, s__28518__$2)))
+            }
+          }else {
+            return null
+          }
+          break
+        }
+      }, null)
+    };
+    return iter__3530__auto__.call(null, cljs.core.range.call(null, 0, 9))
+  }())
+};
 CSSDisplay.getCell = function getCell(cellNum) {
   return domina.by_id.call(null, [cljs.core.str("cell"), cljs.core.str(cellNum)].join(""))
 };
