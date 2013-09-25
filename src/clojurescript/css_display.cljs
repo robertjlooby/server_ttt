@@ -1,11 +1,11 @@
-(ns CSSDisplay
+(ns css-display
   (:require-macros [hiccups.core :as h])
   (:require [domina :as dom]
             [domina.css :as css]
             [hiccups.runtime :as hiccupsrt]
             [domina.events :as ev]))
 
-(def boardHtml
+(def board-html
   (->> (map #(h/html [(str "div#row" %) 
                        (for [col (range 0 3)]
                          (let [cell (+ (* % 3) col)]
@@ -13,7 +13,7 @@
              (range 0 3))
        (apply str)))
 
-(def formHtml
+(def form-html
   (h/html [:div#newGameForm [:div "Marker:"
                                   [:input {:name "marker" :type "radio" :value "X" :checked true} "X"]
                                   [:input {:name "marker" :type "radio" :value "O"} "O"]]
@@ -22,44 +22,44 @@
                                   [:input {:name "move" :type "radio" :value "1"} "Second"]]
                             [:button#newGameButton {:type "button"} "Play!"]]))
 
-(defn resetBoard [fun]
-  (dom/set-html! (dom/by-id "board") boardHtml)
+(defn reset-board [fun]
+  (dom/set-html! (dom/by-id "board") board-html)
   (doall
     (for [cell (range 0 9)]
       (-> (dom/by-id (str "cell" cell))
           (ev/listen! :click (fn [evt] (fun cell)))))))
 
-(defn displayForm [fun]
-  (dom/append! (dom/by-id "board") formHtml)
+(defn display-form [fun]
+  (dom/append! (dom/by-id "board") form-html)
   (ev/listen! (dom/by-id "newGameButton") :click fun))
 
-(defn getCell [cellNum]
-  (dom/by-id (str "cell" cellNum)))
+(defn get-cell [cell-num]
+  (dom/by-id (str "cell" cell-num)))
 
-(defn getButton [cellNum]
+(defn get-button [cell-num]
   (dom/single-node
-    (css/sel (str "#cell" cellNum " .button"))))
+    (css/sel (str "#cell" cell-num " .button"))))
 
-(defn makeMove [marker cellNum]
-  (-> (getCell cellNum)
+(defn make-move [marker cell-num]
+  (-> (get-cell cell-num)
       (dom/set-html! marker)))
 
-(defn getMarker []
+(defn get-marker []
   (-> (css/sel "input[name=\"marker\"]:checked")
       dom/value))
 
-(defn getMove []
+(defn get-move []
   (-> (css/sel "input[name=\"move\"]:checked")
       dom/value))
 
-(defn displayMessage [msg]
+(defn display-message [msg]
   (dom/prepend! (dom/by-id "board") (h/html [:h1 msg])))
 
-(defn displayWinMessage []
-  (displayMessage "You Win!"))
+(defn display-win-message []
+  (display-message "You Win!"))
 
-(defn displayLoseMessage []
-  (displayMessage "You Lose!"))
+(defn display-lose-message []
+  (display-message "You Lose!"))
 
-(defn displayTieMessage []
-  (displayMessage "It was a Tie!"))
+(defn display-tie-message []
+  (display-message "It was a Tie!"))

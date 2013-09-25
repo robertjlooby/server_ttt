@@ -1,30 +1,30 @@
-(ns JasmineMacros)
+(ns jasmine-macros)
 
 (defmacro describe [description & body]
   `(~'js/describe ~description (fn [] ~@body)))
 
-(defmacro beforeEach [& body]
+(defmacro before-each [& body]
   `(~'js/beforeEach (fn [] ~@body)))
 
 (defmacro it [description & body]
   `(~'js/it ~description (fn [] ~@body)))
 
-(defmacro expectToBe [actual expected]
+(defmacro expect-to-be [actual expected]
   `(-> ~actual
        (~'js/expect)
        (.toBe ~expected)))
 
-(defmacro expectToMatch [actual expected]
+(defmacro expect-to-match [actual expected]
   `(-> ~actual
        (~'js/expect)
        (.toMatch ~expected)))
 
-(defmacro expectToHaveBeenCalledWith [fun arg]
+(defmacro expect-to-have-been-called-with [fun arg]
   `(-> ~fun
        (~'js/expect)
        (.toHaveBeenCalledWith ~arg)))
 
-(defmacro affixTo
+(defmacro affix-to
   ([node id]
    `(.affix ~node ~id))
   ([node id fun text]

@@ -1,6 +1,5 @@
-(ns TicTacToeSpec
-  (:require-macros [hiccups.core :as h]
-                   [JasmineMacros :as jas])
+(ns tic-tac-toe
+  (:require-macros [hiccups.core :as h])
   (:require [domina :as dom]
             [domina.css :as css]
             [hiccups.runtime :as hiccupsrt]

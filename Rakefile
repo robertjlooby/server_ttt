@@ -23,7 +23,7 @@ task :spec_trim do
       mtime = File.mtime(fname)
       temp = Tempfile.new('spec')
       flag = false
-      good_line = "goog.provide(\"CSSDisplaySpec\");\n"
+      good_line = "goog.provide(\"css_display_spec\");\n"
       File.open(fname, 'r').each_line do |line|
         flag = true if line == good_line
         temp.write(line) if flag
