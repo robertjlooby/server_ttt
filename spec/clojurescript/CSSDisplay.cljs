@@ -36,7 +36,6 @@
           (jas/expectToHaveBeenCalledWith fun c)))))
 )
 
-
 (jas/describe "CSSDisplay.getCell"
   (jas/beforeEach
     (let [board (js/affix "#board")]
@@ -63,4 +62,47 @@
 
   (jas/it "should return null for invalid cell"
     (jas/expectToBe (CSSDisplay.getButton -1) nil))
+)
+
+(jas/describe "CSSDisplay.makeMove"
+  (jas/beforeEach
+    (let [board (js/affix "#board")]
+      (jas/affixTo board "#cell0" dom/set-text! "empty cell")
+      (jas/affixTo board "#cell5" dom/set-text! "empty cell")))
+
+  (jas/it "should replace cell contents with marker"
+    (CSSDisplay.makeMove "X" 0)
+    (jas/expectToBe (dom/html (dom/by-id "cell0")) "X")
+    (CSSDisplay.makeMove "O" 5)
+    (jas/expectToBe (dom/html (dom/by-id "cell5")) "O"))
+)
+
+(jas/describe "CSSDisplay.getMarker"
+  (jas/beforeEach
+    (let [f (js/affix "#newGameForm")]
+      (jas/affixTo
+        f "input[id=\"x\"][name=\"marker\"][type=\"radio\"][value=\"X\"]")
+      (jas/affixTo
+        f "input[id=\"o\"][name=\"marker\"][type=\"radio\"][value=\"O\"]")))
+
+  (jas/it "should return the marker value from the form"
+    (dom/set-attr! (dom/by-id "x") :checked true)
+    (jas/expectToBe (CSSDisplay.getMarker) "X")
+    (dom/set-attr! (dom/by-id "o") :checked true)
+    (jas/expectToBe (CSSDisplay.getMarker) "O"))
+)
+
+(jas/describe "CSSDisplay.getMove"
+  (jas/beforeEach
+    (let [f (js/affix "#newGameForm")]
+      (jas/affixTo
+        f "input[id=\"zero\"][name=\"move\"][type=\"radio\"][value=\"0\"]")
+      (jas/affixTo
+        f "input[id=\"one\"][name=\"move\"][type=\"radio\"][value=\"1\"]")))
+
+  (jas/it "should return the move value from the form"
+    (dom/set-attr! (dom/by-id "zero") :checked true)
+    (jas/expectToBe (CSSDisplay.getMove) "0")
+    (dom/set-attr! (dom/by-id "one") :checked true)
+    (jas/expectToBe (CSSDisplay.getMove) "1"))
 )

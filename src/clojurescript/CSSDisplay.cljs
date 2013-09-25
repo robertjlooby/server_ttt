@@ -23,3 +23,15 @@
 (defn getButton [cellNum]
   (dom/single-node
     (css/sel (str "#cell" cellNum " .button"))))
+
+(defn makeMove [marker cellNum]
+  (-> (getCell cellNum)
+      (dom/set-html! marker)))
+
+(defn getMarker []
+  (-> (css/sel "input[name=\"marker\"]:checked")
+      (dom/value)))
+
+(defn getMove []
+  (-> (css/sel "input[name=\"move\"]:checked")
+      (dom/value)))
