@@ -28,13 +28,11 @@
   (jas/it "should attach the given event handler to each button"
     (let [fun (.createSpy js/jasmine "fun")]
       (css-display.reset-board fun)
-      (doall
-        (for [c (range 0 9)]
-          (ev/dispatch! (dom/by-id (str "cell" c)) :click {})))
+      (doseq [c (range 0 9)]
+        (ev/dispatch! (dom/by-id (str "cell" c)) :click {}))
       (jas/expect-to-be (.-length (.-calls fun)) 9)
-      (doall
-        (for [c (range 0 9)]
-          (jas/expect-to-have-been-called-with fun c)))))
+      (doseq [c (range 0 9)]
+        (jas/expect-to-have-been-called-with fun c))))
 )
 
 (jas/describe "css-display.display-form"

@@ -19,10 +19,10 @@
        (~'js/expect)
        (.toMatch ~expected)))
 
-(defmacro expect-to-have-been-called-with [fun arg]
+(defmacro expect-to-have-been-called-with [fun & args]
   `(-> ~fun
        (~'js/expect)
-       (.toHaveBeenCalledWith ~arg)))
+       (.toHaveBeenCalledWith ~@args)))
 
 (defmacro affix-to
   ([node id]

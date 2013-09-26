@@ -1,65 +1,68 @@
-(ns css-display
+(ns display
   (:require-macros [hiccups.core :as h])
-  (:require [domina :as dom]
+  (:require [abstract-display :as a-d]
+            [domina :as dom]
             [domina.css :as css]
             [hiccups.runtime :as hiccupsrt]
             [domina.events :as ev]))
 
-(def board-html
-  (->> (map #(h/html [(str "div#row" %) 
-                       (for [col (range 0 3)]
-                         (let [cell (+ (* % 3) col)]
-                           [(str "div#cell" cell) [:button.button (str cell)]]))])
-             (range 0 3))
-       (apply str)))
+(deftype css-display []
+  a-d/display-protocol
+  (def board-html
+    (->> (map #(h/html [(str "div#row" %) 
+                         (for [col (range 0 3)]
+                           (let [cell (+ (* % 3) col)]
+                             [(str "div#cell" cell) [:button.button (str cell)]]))])
+               (range 0 3))
+         (apply str)))
 
-(def form-html
-  (h/html [:div#newGameForm [:div "Marker:"
-                                  [:input {:name "marker" :type "radio" :value "X" :checked true} "X"]
-                                  [:input {:name "marker" :type "radio" :value "O"} "O"]]
-                            [:div "Move:"
-                                  [:input {:name "move" :type "radio" :value "0" :checked true} "First"]
-                                  [:input {:name "move" :type "radio" :value "1"} "Second"]]
-                            [:button#newGameButton {:type "button"} "Play!"]]))
+  (def form-html
+    (h/html [:div#newGameForm [:div "Marker:"
+                                    [:input {:name "marker" :type "radio" :value "X" :checked true} "X"]
+                                    [:input {:name "marker" :type "radio" :value "O"} "O"]]
+                              [:div "Move:"
+                                    [:input {:name "move" :type "radio" :value "0" :checked true} "First"]
+                                    [:input {:name "move" :type "radio" :value "1"} "Second"]]
+                              [:button#newGameButton {:type "button"} "Play!"]]))
 
-(defn reset-board [fun]
-  (dom/set-html! (dom/by-id "board") board-html)
-  (doall
-    (for [cell (range 0 9)]
+  (reset-board [this fun]
+    (dom/set-html! (dom/by-id "board") board-html)
+    (doseq [cell (range 0 9)]
       (-> (dom/by-id (str "cell" cell))
-          (ev/listen! :click (fn [evt] (fun cell)))))))
+          (ev/listen! :click (fn [evt] (fun cell))))))
 
-(defn display-form [fun]
-  (dom/append! (dom/by-id "board") form-html)
-  (ev/listen! (dom/by-id "newGameButton") :click fun))
+  (display-form [this fun]
+    (dom/append! (dom/by-id "board") form-html)
+    (ev/listen! (dom/by-id "newGameButton") :click fun))
 
-(defn get-cell [cell-num]
-  (dom/by-id (str "cell" cell-num)))
+  (get-cell [this cell-num]
+    (dom/by-id (str "cell" cell-num)))
 
-(defn get-button [cell-num]
-  (dom/single-node
-    (css/sel (str "#cell" cell-num " .button"))))
+  (get-button [this cell-num]
+    (dom/single-node
+      (css/sel (str "#cell" cell-num " .button"))))
 
-(defn make-move [marker cell-num]
-  (-> (get-cell cell-num)
-      (dom/set-html! marker)))
+  (make-move [this marker cell-num]
+    (-> (get-cell cell-num)
+        (dom/set-html! marker)))
 
-(defn get-marker []
-  (-> (css/sel "input[name=\"marker\"]:checked")
-      dom/value))
+  (get-marker [this]
+    (-> (css/sel "input[name=\"marker\"]:checked")
+        dom/value))
 
-(defn get-move []
-  (-> (css/sel "input[name=\"move\"]:checked")
-      dom/value))
+  (get-move [this]
+    (-> (css/sel "input[name=\"move\"]:checked")
+        dom/value))
 
-(defn display-message [msg]
-  (dom/prepend! (dom/by-id "board") (h/html [:h1 msg])))
+  (defn display-message [this msg]
+    (dom/prepend! (dom/by-id "board") (h/html [:h1 msg])))
 
-(defn display-win-message []
-  (display-message "You Win!"))
+  (display-win-message [this]
+    (display-message "You Win!"))
 
-(defn display-lose-message []
-  (display-message "You Lose!"))
+  (display-lose-message [this]
+    (display-message "You Lose!"))
 
-(defn display-tie-message []
-  (display-message "It was a Tie!"))
+  (display-tie-message [this]
+    (display-message "It was a Tie!"))
+)
