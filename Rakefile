@@ -20,10 +20,9 @@ task :spec_trim do
   
   loop do
     if File.mtime(fname) != mtime
-      mtime = File.mtime(fname)
       temp = Tempfile.new('spec')
       flag = false
-      good_line = "goog.provide(\"css_display_spec\");\n"
+      good_line = "goog.provide(\"abstract_display\");\n"
       File.open(fname, 'r').each_line do |line|
         flag = true if line == good_line
         temp.write(line) if flag
@@ -33,6 +32,7 @@ task :spec_trim do
       temp.close
       temp.unlink
       puts "trimmed google closure code from #{fname}"
+      mtime = File.mtime(fname)
     else
       sleep(1)
     end

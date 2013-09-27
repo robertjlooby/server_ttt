@@ -22,13 +22,7 @@
   :test-paths ["spec/clojure"]
   :cljsbuild {
               :builds [{
-                        :source-paths ["src/clojurescript"]
-                        :compiler {
-                                   :output-to "ttt_public/javascripts/main.js"
-                                   :optimizations :whitespace
-                                   :pretty-print true}}
-                       {
-                        :source-paths ["spec/clojurescript"]
+                        :source-paths ["src/clojurescript" "spec/clojurescript"]
                         :compiler {
                                    :output-to "spec/javascripts/mainSpec.js"
                                    :optimizations :whitespace

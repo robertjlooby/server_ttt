@@ -14,6 +14,11 @@
        (~'js/expect)
        (.toBe ~expected)))
 
+(defmacro expect-to-equal [actual expected]
+  `(-> ~actual
+       (~'js/expect)
+       (.toEqual ~expected)))
+
 (defmacro expect-to-match [actual expected]
   `(-> ~actual
        (~'js/expect)

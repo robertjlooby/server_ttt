@@ -1,8 +1,7 @@
 (ns css-display-spec
   (:require-macros [hiccups.core :as h]
                    [jasmine-macros :as jas])
-  (:require [abstract-display :as dis]
-            [domina :as dom]
+  (:require [domina :as dom]
             [domina.css :as css]
             [hiccups.runtime :as hiccupsrt]
             [domina.events :as ev]))
@@ -14,7 +13,7 @@
 
   (jas/it "should reset the contents of #board"
     (let [d (display/css-display.)]
-      (dis/reset-board d #(str %)))
+      (abstract-display/reset-board d #(str %)))
     (jas/expect-to-match (dom/html (dom/by-id "board"))
                        "class=\"button\">0<")
     (jas/expect-to-match (dom/html (dom/by-id "board"))
@@ -25,13 +24,13 @@
   (jas/it "should remove form"
     (jas/expect-to-be (dom/text (dom/by-id "newGameForm")) "a form")
     (let [d (display/css-display.)]
-      (dis/reset-board d #(str %)))
+      (abstract-display/reset-board d #(str %)))
     (jas/expect-to-be (dom/by-id "newGameForm") nil))
 
   (jas/it "should attach the given event handler to each button"
     (let [fun (.createSpy js/jasmine "fun")]
       (let [d (display/css-display.)]
-        (dis/reset-board d fun))
+        (abstract-display/reset-board d fun))
       (doseq [c (range 0 9)]
         (ev/dispatch! (dom/by-id (str "cell" c)) :click {}))
       (jas/expect-to-be (.-length (.-calls fun)) 9)
@@ -46,7 +45,7 @@
 
   (jas/it "should display the form"
     (let [d (display/css-display.)]
-      (dis/display-form d #()))
+      (abstract-display/display-form d #()))
     (jas/expect-to-match (dom/html (dom/by-id "newGameForm"))
      "<input checked=\"checked\" name=\"marker\" value=\"X\" type=\"radio\">X")
     (jas/expect-to-match (dom/html (dom/by-id "newGameForm"))
@@ -56,13 +55,13 @@
 
   (jas/it "should not remove other board elements"
     (let [d (display/css-display.)]
-      (dis/display-form d #()))
+      (abstract-display/display-form d #()))
     (jas/expect-to-be (dom/text (dom/by-id "fakeBoard")) "a board"))
 
   (jas/it "should attach the given function to the button"
     (let [fun (.createSpy js/jasmine "fun")]
       (let [d (display/css-display.)]
-        (dis/display-form d fun))
+        (abstract-display/display-form d fun))
       (ev/dispatch! (dom/by-id "newGameButton") :click {})
       (jas/expect-to-be (.-length (.-calls fun)) 1)))
 )
@@ -75,12 +74,12 @@
 
   (jas/it "should get the given cell by number"
     (let [d (display/css-display.)]
-      (jas/expect-to-be (dom/text (dis/get-cell d 0)) "cell 0")
-      (jas/expect-to-be (dom/text (dis/get-cell d 3)) "cell 3")))
+      (jas/expect-to-be (dom/text (abstract-display/get-cell d 0)) "cell 0")
+      (jas/expect-to-be (dom/text (abstract-display/get-cell d 3)) "cell 3")))
 
   (jas/it "should return null for invalid cell"
     (let [d (display/css-display.)]
-      (jas/expect-to-be (dis/get-cell d -1) nil)))
+      (jas/expect-to-be (abstract-display/get-cell d -1) nil)))
 )
 
 (jas/describe "css-display.get-button"
@@ -91,12 +90,12 @@
 
   (jas/it "should get the given button by number"
     (let [d (display/css-display.)]
-      (jas/expect-to-be (dom/text (dis/get-button d 0)) "btn 0")
-      (jas/expect-to-be (dom/text (dis/get-button d 3)) "btn 3")))
+      (jas/expect-to-be (dom/text (abstract-display/get-button d 0)) "btn 0")
+      (jas/expect-to-be (dom/text (abstract-display/get-button d 3)) "btn 3")))
 
   (jas/it "should return null for invalid cell"
     (let [d (display/css-display.)]
-      (jas/expect-to-be (dis/get-button d -1) nil)))
+      (jas/expect-to-be (abstract-display/get-button d -1) nil)))
 )
 
 (jas/describe "css-display.make-move"
@@ -107,9 +106,9 @@
 
   (jas/it "should replace cell contents with marker"
     (let [d (display/css-display.)]
-      (dis/make-move d "X" 0)
+      (abstract-display/make-move d "X" 0)
       (jas/expect-to-be (dom/html (dom/by-id "cell0")) "X")
-      (dis/make-move d "O" 5)
+      (abstract-display/make-move d "O" 5)
       (jas/expect-to-be (dom/html (dom/by-id "cell5")) "O")))
 )
 
@@ -124,9 +123,9 @@
   (jas/it "should return the marker value from the form"
     (let [d (display/css-display.)]
       (dom/set-attr! (dom/by-id "x") :checked true)
-      (jas/expect-to-be (dis/get-marker d) "X")
+      (jas/expect-to-be (abstract-display/get-marker d) "X")
       (dom/set-attr! (dom/by-id "o") :checked true)
-      (jas/expect-to-be (dis/get-marker d) "O")))
+      (jas/expect-to-be (abstract-display/get-marker d) "O")))
 )
 
 (jas/describe "css-display.get-move"
@@ -140,9 +139,9 @@
   (jas/it "should return the move value from the form"
     (let [d (display/css-display.)]
       (dom/set-attr! (dom/by-id "zero") :checked true)
-      (jas/expect-to-be (dis/get-move d) "0")
+      (jas/expect-to-be (abstract-display/get-move d) "0")
       (dom/set-attr! (dom/by-id "one") :checked true)
-      (jas/expect-to-be (dis/get-move d) "1")))
+      (jas/expect-to-be (abstract-display/get-move d) "1")))
 )
 
 (jas/describe "css-display end of game messages"
@@ -151,16 +150,16 @@
 
   (jas/it "should display a win message"
     (let [d (display/css-display.)]
-      (dis/display-win-message d))
+      (abstract-display/display-win-message d))
     (jas/expect-to-match (dom/text (css/sel "#board h1")) "Win"))
 
   (jas/it "should display a lose message"
     (let [d (display/css-display.)]
-      (dis/display-lose-message d))
+      (abstract-display/display-lose-message d))
     (jas/expect-to-match (dom/text (css/sel "#board h1")) "Lose"))
 
   (jas/it "should display a tie message"
     (let [d (display/css-display.)]
-      (dis/display-tie-message d))
+      (abstract-display/display-tie-message d))
     (jas/expect-to-match (dom/text (css/sel "#board h1")) "Tie"))
 )
