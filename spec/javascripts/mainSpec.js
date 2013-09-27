@@ -260,7 +260,6 @@ describe("css-display end of game messages", function() {
 });
 goog.provide("tic_tac_toe_spec");
 goog.require("cljs.core");
-goog.require("tic_tac_toe.display");
 describe("tic-tac-toe.reset-board", function() {
   beforeEach(function() {
     return affix("#board")
@@ -278,20 +277,15 @@ describe("tic-tac-toe.reset-board", function() {
   return it("should pass event handler to display.reset-board which calls make-move", function() {
     var mm_args = cljs.core.atom.call(null, null);
     var rb_args = cljs.core.atom.call(null, null);
-    var make_move3999 = tic_tac_toe.make_move;
-    var reset_board4000 = tic_tac_toe.display.reset_board;
+    var make_move5832 = tic_tac_toe.make_move;
     try {
       tic_tac_toe.make_move = function(a, b, c) {
         return cljs.core.reset_BANG_.call(null, mm_args, cljs.core.PersistentVector.fromArray([a, b, c], true))
       };
-      tic_tac_toe.display.reset_board = function(f) {
-        return cljs.core.reset_BANG_.call(null, rb_args, f)
-      };
       tic_tac_toe.reset_board.call(null, "X");
       return alert([cljs.core.str(cljs.core.deref.call(null, rb_args))].join(""))
     }finally {
-      tic_tac_toe.display.reset_board = reset_board4000;
-      tic_tac_toe.make_move = make_move3999
+      tic_tac_toe.make_move = make_move5832
     }
   })
 });

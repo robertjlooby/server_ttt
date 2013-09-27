@@ -1,6 +1,5 @@
 (ns tic-tac-toe-spec
-  (:require-macros [jasmine-macros :as jas])
-  (:require [tic-tac-toe/display :as ddisplay]))
+  (:require-macros [jasmine-macros :as jas]))
 
 (jas/describe "tic-tac-toe.reset-board"
   (jas/before-each
@@ -20,8 +19,7 @@
     (let [mm-args (atom nil)
           rb-args (atom nil)]
       (with-redefs
-        [tic-tac-toe/make-move (fn [a b c] (reset! mm-args [a b c]))
-         ddisplay/reset-board (fn [f] (reset! rb-args f))]
+        [tic-tac-toe/make-move (fn [a b c] (reset! mm-args [a b c]))]
         (tic-tac-toe.reset-board "X")
         
         (js/alert (str @rb-args)))))

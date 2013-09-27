@@ -30874,15 +30874,12 @@ display.__GT_css_display = function __GT_css_display() {
 };
 goog.provide("tic_tac_toe");
 goog.require("cljs.core");
-goog.require("css_display");
 tic_tac_toe.board_state = cljs.core.atom.call(null, "_________");
 tic_tac_toe.buttons_enabled = cljs.core.atom.call(null, false);
 tic_tac_toe.reset_board = function reset_board(fun) {
   cljs.core.reset_BANG_.call(null, tic_tac_toe.buttons_enabled, false);
   cljs.core.reset_BANG_.call(null, tic_tac_toe.board_state, "_________");
-  css_display.display_win_message.call(null);
-  tic_tac_toe.make_move.call(null, "X", "_________", 0);
-  return alert("pause")
+  return tic_tac_toe.make_move.call(null, "X", "_________", 0)
 };
 tic_tac_toe.make_move = function make_move(a, b, c) {
   return null
