@@ -31286,13 +31286,16 @@ tic_tac_toe.display = cljs.core.atom.call(null, new display.css_display);
 tic_tac_toe.make_move = function make_move(a, b, c) {
   return null
 };
-tic_tac_toe.reset_board = function reset_board(fun) {
+tic_tac_toe.reset_board = function reset_board(s) {
   cljs.core.reset_BANG_.call(null, tic_tac_toe.buttons_enabled, false);
   cljs.core.reset_BANG_.call(null, tic_tac_toe.board_state, "_________");
-  abstract_display.reset_board.call(null, cljs.core.deref.call(null, tic_tac_toe.display), function() {
-    return cljs.core.List.EMPTY
-  });
-  return tic_tac_toe.make_move.call(null, "X", "_________", 0)
+  return abstract_display.reset_board.call(null, cljs.core.deref.call(null, tic_tac_toe.display), function(cell_num) {
+    if(cljs.core.truth_(cljs.core.deref.call(null, tic_tac_toe.buttons_enabled))) {
+      return tic_tac_toe.make_move.call(null, s, cljs.core.deref.call(null, tic_tac_toe.board_state), cell_num)
+    }else {
+      return null
+    }
+  })
 };
 goog.provide("tic_tac_toe_spec");
 goog.require("cljs.core");
@@ -31311,11 +31314,10 @@ describe("tic-tac-toe.reset-board", function() {
     return expect(cljs.core.deref.call(null, tic_tac_toe.buttons_enabled)).toBe(false)
   });
   return it("should pass event handler to display.reset-board which calls make-move", function() {
-    cljs.core.reset_BANG_.call(null, tic_tac_toe.buttons_enabled, true);
     var mm_args = cljs.core.atom.call(null, null);
     var d = new mock_display.mock_css_display;
     var _ = cljs.core.reset_BANG_.call(null, tic_tac_toe.display, d);
-    var make_move6664 = tic_tac_toe.make_move;
+    var make_move6668 = tic_tac_toe.make_move;
     try {
       tic_tac_toe.make_move = function(a, b, c) {
         return cljs.core.reset_BANG_.call(null, mm_args, cljs.core.PersistentVector.fromArray([a, b, c], true))
@@ -31323,9 +31325,12 @@ describe("tic-tac-toe.reset-board", function() {
       tic_tac_toe.reset_board.call(null, "X");
       expect(cljs.core.first.call(null, cljs.core.deref.call(null, mock_display.last_args))).toEqual(new cljs.core.Keyword(null, "reset-board", "reset-board", 3431636058));
       cljs.core.last.call(null, cljs.core.deref.call(null, mock_display.last_args)).call(null, 0);
+      expect(cljs.core.deref.call(null, mm_args)).toEqual(null);
+      cljs.core.reset_BANG_.call(null, tic_tac_toe.buttons_enabled, true);
+      cljs.core.last.call(null, cljs.core.deref.call(null, mock_display.last_args)).call(null, 0);
       return expect(cljs.core.deref.call(null, mm_args)).toEqual(cljs.core.PersistentVector.fromArray(["X", "_________", 0], true))
     }finally {
-      tic_tac_toe.make_move = make_move6664
+      tic_tac_toe.make_move = make_move6668
     }
   })
 });

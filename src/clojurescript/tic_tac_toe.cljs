@@ -8,8 +8,11 @@
 
 (defn make-move [a b c])
 
-(defn reset-board [fun]
+(defn reset-board [s]
   (reset! buttons-enabled false)
   (reset! board-state "_________")
-  (abstract-display/reset_board @display #())
-  (make-move "X" "_________" 0))
+  (abstract-display/reset_board
+    @display 
+    (fn [cell-num] 
+      (if @buttons-enabled
+        (make-move s @board-state cell-num)))))
