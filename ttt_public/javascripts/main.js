@@ -30696,6 +30696,182 @@ goog.require("domina.events");
 goog.require("hiccups.runtime");
 goog.require("domina.css");
 goog.require("domina");
+goog.require("abstract_display");
+display.board_html = cljs.core.apply.call(null, cljs.core.str, cljs.core.map.call(null, function(p1__5751_SHARP_) {
+  return[cljs.core.str(hiccups.runtime.render_element.call(null, cljs.core.PersistentVector.fromArray([[cljs.core.str("div#row"), cljs.core.str(p1__5751_SHARP_)].join(""), function() {
+    var iter__3530__auto__ = function iter__5752(s__5753) {
+      return new cljs.core.LazySeq(null, false, function() {
+        var s__5753__$1 = s__5753;
+        while(true) {
+          var temp__4092__auto__ = cljs.core.seq.call(null, s__5753__$1);
+          if(temp__4092__auto__) {
+            var s__5753__$2 = temp__4092__auto__;
+            if(cljs.core.chunked_seq_QMARK_.call(null, s__5753__$2)) {
+              var c__3528__auto__ = cljs.core.chunk_first.call(null, s__5753__$2);
+              var size__3529__auto__ = cljs.core.count.call(null, c__3528__auto__);
+              var b__5755 = cljs.core.chunk_buffer.call(null, size__3529__auto__);
+              if(function() {
+                var i__5754 = 0;
+                while(true) {
+                  if(i__5754 < size__3529__auto__) {
+                    var col = cljs.core._nth.call(null, c__3528__auto__, i__5754);
+                    cljs.core.chunk_append.call(null, b__5755, function() {
+                      var cell = p1__5751_SHARP_ * 3 + col;
+                      return cljs.core.PersistentVector.fromArray([[cljs.core.str("div#cell"), cljs.core.str(cell)].join(""), cljs.core.PersistentVector.fromArray([new cljs.core.Keyword(null, "button.button", "button.button", 1398701280), [cljs.core.str(cell)].join("")], true)], true)
+                    }());
+                    var G__5756 = i__5754 + 1;
+                    i__5754 = G__5756;
+                    continue
+                  }else {
+                    return true
+                  }
+                  break
+                }
+              }()) {
+                return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__5755), iter__5752.call(null, cljs.core.chunk_rest.call(null, s__5753__$2)))
+              }else {
+                return cljs.core.chunk_cons.call(null, cljs.core.chunk.call(null, b__5755), null)
+              }
+            }else {
+              var col = cljs.core.first.call(null, s__5753__$2);
+              return cljs.core.cons.call(null, function() {
+                var cell = p1__5751_SHARP_ * 3 + col;
+                return cljs.core.PersistentVector.fromArray([[cljs.core.str("div#cell"), cljs.core.str(cell)].join(""), cljs.core.PersistentVector.fromArray([new cljs.core.Keyword(null, "button.button", "button.button", 1398701280), [cljs.core.str(cell)].join("")], true)], true)
+              }(), iter__5752.call(null, cljs.core.rest.call(null, s__5753__$2)))
+            }
+          }else {
+            return null
+          }
+          break
+        }
+      }, null)
+    };
+    return iter__3530__auto__.call(null, cljs.core.range.call(null, 0, 3))
+  }()], true)))].join("")
+}, cljs.core.range.call(null, 0, 3)));
+display.form_html = [cljs.core.str('\x3cdiv id\x3d"newGameForm"\x3e\x3cdiv\x3eMarker:\x3cinput checked\x3d"checked" name\x3d"marker" type\x3d"radio" value\x3d"X"\x3eX\x3c/input\x3e\x3cinput name\x3d"marker" type\x3d"radio" value\x3d"O"\x3eO\x3c/input\x3e\x3c/div\x3e\x3cdiv\x3eMove:\x3cinput checked\x3d"checked" name\x3d"move" type\x3d"radio" value\x3d"0"\x3eFirst\x3c/input\x3e\x3cinput name\x3d"move" type\x3d"radio" value\x3d"1"\x3eSecond\x3c/input\x3e\x3c/div\x3e\x3cbutton id\x3d"newGameButton" type\x3d"button"\x3ePlay!\x3c/button\x3e\x3c/div\x3e')].join("");
+display.display_message = function display_message(msg) {
+  return domina.prepend_BANG_.call(null, domina.by_id.call(null, "board"), [cljs.core.str(function() {
+    var attrs5760 = msg;
+    if(cljs.core.map_QMARK_.call(null, attrs5760)) {
+      return[cljs.core.str("\x3ch1"), cljs.core.str(hiccups.runtime.render_attr_map.call(null, cljs.core.merge.call(null, cljs.core.PersistentArrayMap.fromArray([new cljs.core.Keyword(null, "id", "id", 1013907597), null, new cljs.core.Keyword(null, "class", "class", 1108647146), null], true), attrs5760))), cljs.core.str("\x3e"), cljs.core.str("\x3c/h1\x3e")].join("")
+    }else {
+      return[cljs.core.str("\x3ch1\x3e"), cljs.core.str(hiccups.runtime.render_html.call(null, attrs5760)), cljs.core.str("\x3c/h1\x3e")].join("")
+    }
+  }())].join(""))
+};
+goog.provide("display.css_display");
+display.css_display = function() {
+};
+display.css_display.cljs$lang$type = true;
+display.css_display.cljs$lang$ctorStr = "display/css-display";
+display.css_display.cljs$lang$ctorPrWriter = function(this__3371__auto__, writer__3372__auto__, opt__3373__auto__) {
+  return cljs.core._write.call(null, writer__3372__auto__, "display/css-display")
+};
+display.css_display.prototype.abstract_display$display_protocol$ = true;
+display.css_display.prototype.abstract_display$display_protocol$get_marker$arity$1 = function(this$) {
+  var self__ = this;
+  return domina.value.call(null, domina.css.sel.call(null, 'input[name\x3d"marker"]:checked'))
+};
+display.css_display.prototype.abstract_display$display_protocol$display_lose_message$arity$1 = function(this$) {
+  var self__ = this;
+  return display.display_message.call(null, "You Lose!")
+};
+display.css_display.prototype.abstract_display$display_protocol$get_cell$arity$2 = function(this$, cell_num) {
+  var self__ = this;
+  return domina.by_id.call(null, [cljs.core.str("cell"), cljs.core.str(cell_num)].join(""))
+};
+display.css_display.prototype.abstract_display$display_protocol$display_win_message$arity$1 = function(this$) {
+  var self__ = this;
+  return display.display_message.call(null, "You Win!")
+};
+display.css_display.prototype.abstract_display$display_protocol$get_button$arity$2 = function(this$, cell_num) {
+  var self__ = this;
+  return domina.single_node.call(null, domina.css.sel.call(null, [cljs.core.str("#cell"), cljs.core.str(cell_num), cljs.core.str(" .button")].join("")))
+};
+display.css_display.prototype.abstract_display$display_protocol$display_tie_message$arity$1 = function(this$) {
+  var self__ = this;
+  return display.display_message.call(null, "It was a Tie!")
+};
+display.css_display.prototype.abstract_display$display_protocol$reset_board$arity$2 = function(this$, fun) {
+  var self__ = this;
+  domina.set_html_BANG_.call(null, domina.by_id.call(null, "board"), display.board_html);
+  var seq__5761 = cljs.core.seq.call(null, cljs.core.range.call(null, 0, 9));
+  var chunk__5762 = null;
+  var count__5763 = 0;
+  var i__5764 = 0;
+  while(true) {
+    if(i__5764 < count__5763) {
+      var cell = cljs.core._nth.call(null, chunk__5762, i__5764);
+      domina.events.listen_BANG_.call(null, domina.by_id.call(null, [cljs.core.str("cell"), cljs.core.str(cell)].join("")), new cljs.core.Keyword(null, "click", "click", 1108654330), function(seq__5761, chunk__5762, count__5763, i__5764, cell) {
+        return function(evt) {
+          return fun.call(null, cell)
+        }
+      }(seq__5761, chunk__5762, count__5763, i__5764, cell));
+      var G__5765 = seq__5761;
+      var G__5766 = chunk__5762;
+      var G__5767 = count__5763;
+      var G__5768 = i__5764 + 1;
+      seq__5761 = G__5765;
+      chunk__5762 = G__5766;
+      count__5763 = G__5767;
+      i__5764 = G__5768;
+      continue
+    }else {
+      var temp__4092__auto__ = cljs.core.seq.call(null, seq__5761);
+      if(temp__4092__auto__) {
+        var seq__5761__$1 = temp__4092__auto__;
+        if(cljs.core.chunked_seq_QMARK_.call(null, seq__5761__$1)) {
+          var c__3561__auto__ = cljs.core.chunk_first.call(null, seq__5761__$1);
+          var G__5769 = cljs.core.chunk_rest.call(null, seq__5761__$1);
+          var G__5770 = c__3561__auto__;
+          var G__5771 = cljs.core.count.call(null, c__3561__auto__);
+          var G__5772 = 0;
+          seq__5761 = G__5769;
+          chunk__5762 = G__5770;
+          count__5763 = G__5771;
+          i__5764 = G__5772;
+          continue
+        }else {
+          var cell = cljs.core.first.call(null, seq__5761__$1);
+          domina.events.listen_BANG_.call(null, domina.by_id.call(null, [cljs.core.str("cell"), cljs.core.str(cell)].join("")), new cljs.core.Keyword(null, "click", "click", 1108654330), function(seq__5761, chunk__5762, count__5763, i__5764, cell, seq__5761__$1, temp__4092__auto__) {
+            return function(evt) {
+              return fun.call(null, cell)
+            }
+          }(seq__5761, chunk__5762, count__5763, i__5764, cell, seq__5761__$1, temp__4092__auto__));
+          var G__5773 = cljs.core.next.call(null, seq__5761__$1);
+          var G__5774 = null;
+          var G__5775 = 0;
+          var G__5776 = 0;
+          seq__5761 = G__5773;
+          chunk__5762 = G__5774;
+          count__5763 = G__5775;
+          i__5764 = G__5776;
+          continue
+        }
+      }else {
+        return null
+      }
+    }
+    break
+  }
+};
+display.css_display.prototype.abstract_display$display_protocol$get_move$arity$1 = function(this$) {
+  var self__ = this;
+  return domina.value.call(null, domina.css.sel.call(null, 'input[name\x3d"move"]:checked'))
+};
+display.css_display.prototype.abstract_display$display_protocol$display_form$arity$2 = function(this$, fun) {
+  var self__ = this;
+  domina.append_BANG_.call(null, domina.by_id.call(null, "board"), display.form_html);
+  return domina.events.listen_BANG_.call(null, domina.by_id.call(null, "newGameButton"), new cljs.core.Keyword(null, "click", "click", 1108654330), fun)
+};
+display.css_display.prototype.abstract_display$display_protocol$make_move$arity$3 = function(this$, marker, cell_num) {
+  var self__ = this;
+  return domina.set_html_BANG_.call(null, this$.abstract_display$display_protocol$get_cell$arity$2(this$, cell_num), marker)
+};
+display.__GT_css_display = function __GT_css_display() {
+  return new display.css_display
+};
 goog.provide("tic_tac_toe");
 goog.require("cljs.core");
 goog.require("css_display");
