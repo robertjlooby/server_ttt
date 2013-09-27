@@ -31282,8 +31282,20 @@ goog.provide("tic_tac_toe");
 goog.require("cljs.core");
 tic_tac_toe.board_state = cljs.core.atom.call(null, "_________");
 tic_tac_toe.buttons_enabled = cljs.core.atom.call(null, false);
+tic_tac_toe.enable_buttons = function enable_buttons() {
+  return cljs.core.reset_BANG_.call(null, tic_tac_toe.buttons_enabled, true)
+};
+tic_tac_toe.disable_buttons = function disable_buttons() {
+  return cljs.core.reset_BANG_.call(null, tic_tac_toe.buttons_enabled, false)
+};
+tic_tac_toe.get_new_board_state = function get_new_board_state(marker, b_s, cell_num) {
+  return[cljs.core.str(cljs.core.subs.call(null, b_s, 0, cell_num)), cljs.core.str(marker), cljs.core.str(cljs.core.subs.call(null, b_s, cell_num + 1))].join("")
+};
 tic_tac_toe.display = cljs.core.atom.call(null, new display.css_display);
 tic_tac_toe.make_move = function make_move(a, b, c) {
+  return null
+};
+tic_tac_toe.initialize_game = function initialize_game() {
   return null
 };
 tic_tac_toe.reset_board = function reset_board(s) {
@@ -31295,6 +31307,11 @@ tic_tac_toe.reset_board = function reset_board(s) {
     }else {
       return null
     }
+  })
+};
+tic_tac_toe.display_form = function display_form() {
+  return abstract_display.display_form.call(null, cljs.core.deref.call(null, tic_tac_toe.display), function() {
+    return tic_tac_toe.initialize_game.call(null)
   })
 };
 goog.provide("tic_tac_toe_spec");
@@ -31317,7 +31334,7 @@ describe("tic-tac-toe.reset-board", function() {
     var mm_args = cljs.core.atom.call(null, null);
     var d = new mock_display.mock_css_display;
     var _ = cljs.core.reset_BANG_.call(null, tic_tac_toe.display, d);
-    var make_move6668 = tic_tac_toe.make_move;
+    var make_move6698 = tic_tac_toe.make_move;
     try {
       tic_tac_toe.make_move = function(a, b, c) {
         return cljs.core.reset_BANG_.call(null, mm_args, cljs.core.PersistentVector.fromArray([a, b, c], true))
@@ -31330,7 +31347,51 @@ describe("tic-tac-toe.reset-board", function() {
       cljs.core.last.call(null, cljs.core.deref.call(null, mock_display.last_args)).call(null, 0);
       return expect(cljs.core.deref.call(null, mm_args)).toEqual(cljs.core.PersistentVector.fromArray(["X", "_________", 0], true))
     }finally {
-      tic_tac_toe.make_move = make_move6668
+      tic_tac_toe.make_move = make_move6698
     }
+  })
+});
+describe("tic-tac-toe.display-form", function() {
+  return it("should pass an event handler to call initialize-game to display.display-form", function() {
+    var ig_args = cljs.core.atom.call(null, null);
+    var d = new mock_display.mock_css_display;
+    var _ = cljs.core.reset_BANG_.call(null, tic_tac_toe.display, d);
+    var initialize_game6700 = tic_tac_toe.initialize_game;
+    try {
+      tic_tac_toe.initialize_game = function() {
+        return cljs.core.reset_BANG_.call(null, ig_args, new cljs.core.Keyword(null, "called", "called", 3941096175))
+      };
+      tic_tac_toe.display_form.call(null);
+      expect(cljs.core.deref.call(null, ig_args)).toEqual(null);
+      cljs.core.last.call(null, cljs.core.deref.call(null, mock_display.last_args)).call(null);
+      return expect(cljs.core.deref.call(null, ig_args)).toEqual(new cljs.core.Keyword(null, "called", "called", 3941096175))
+    }finally {
+      tic_tac_toe.initialize_game = initialize_game6700
+    }
+  })
+});
+describe("tic-tac-toe.disable/enable buttons", function() {
+  beforeEach(function() {
+    return cljs.core.reset_BANG_.call(null, tic_tac_toe.buttons_enabled, false)
+  });
+  it("should enable buttons", function() {
+    tic_tac_toe.enable_buttons.call(null);
+    return expect(cljs.core.deref.call(null, tic_tac_toe.buttons_enabled)).toBe(true)
+  });
+  return it("should disable buttons", function() {
+    tic_tac_toe.enable_buttons.call(null);
+    tic_tac_toe.disable_buttons.call(null);
+    return expect(cljs.core.deref.call(null, tic_tac_toe.buttons_enabled)).toBe(false)
+  })
+});
+describe("tic-tac-toe.get-new-board-state", function() {
+  it("should replace first element", function() {
+    return expect(tic_tac_toe.get_new_board_state.call(null, "X", "__O______", 0)).toBe("X_O______")
+  });
+  it("should replace an element in the middle", function() {
+    return expect(tic_tac_toe.get_new_board_state.call(null, "O", "X_OX_____", 6)).toBe("X_OX__O__")
+  });
+  return it("should replace an element at the end", function() {
+    return expect(tic_tac_toe.get_new_board_state.call(null, "X", "X_OX__O__", 8)).toBe("X_OX__O_X")
   })
 });
